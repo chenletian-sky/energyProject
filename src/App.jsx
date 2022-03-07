@@ -143,6 +143,11 @@ class App extends React.Component {
 	ColorC = (data) => {
 		this.myAnalysis.current.Csanangle(data)
 	}
+
+	FloatKmeans = (currentDate,Klabel,anomalyThresholdData) => {
+		this.myAnalysis.current.floatingWindowRender(currentDate,Klabel,anomalyThresholdData)
+	}
+
 	GeneralLineRander = (day, month) => {
 		this.myLineCompale.current.generalday = parseInt(day)
 		this.myLineCompale.current.generalmonth = parseInt(month) + 1
@@ -256,7 +261,8 @@ class App extends React.Component {
 					<Analysis
 						ref={this.myAnalysis}
 						theme={this.AnalysisTheme}
-						data={this.dataT}>
+						data={this.dataT}
+					>
 					</Analysis>
 					<LineCompale
 						ref={this.myLineCompale}
@@ -287,9 +293,11 @@ class App extends React.Component {
 						MDSFetch={this.MDSFetch}
 						PagePass={this.PagePass}
 						KmeansR={this.KmeansR}
+						FloatKmeans={this.FloatKmeans}
 						ColorC={this.ColorC}
 						GeneralLineRander={this.GeneralLineRander}
-						ChangeTime={this.ChangeTime}>
+						ChangeTime={this.ChangeTime}
+					>
 					</Control>
 				</div>
 			)

@@ -97,6 +97,8 @@ export const DelectAllg = () => {
 
 
 
+
+
 // LineLight = (data, id) => {
 	// 	const Max = d3.max(data)
 	// 	const Min = d3.min(data)

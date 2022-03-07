@@ -50,7 +50,7 @@ app.post('/MDS',(req,res)=>{
     const day = data.day
     console.log(month,day)
     let workerProcess = child_process.exec(
-        `python ./data/MDS.py ${split} ${month} ${day}`,
+        `python ./data/MDS(2).py ${split} ${month} ${day}`,
         (error, stdout, stderr)=>{
             if (error) {
                 console.log(error.stack);

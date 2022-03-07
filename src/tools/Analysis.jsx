@@ -20,10 +20,21 @@ class Analysis extends React.Component {
             width: this.theme.width,
             linePos: 120,
         }
+        this.padding_float = {
+            top: 1,
+            left: 35,
+            right: 10,
+            bottom: 20,
+            height: this.theme.height * 0.4,
+            width: this.theme.width * 0.4,
+            linePos: 120,
+        }
         this.percent = 1
         this.TimeDate = null
         this.Xscale_ = null
         this.Yscale_ = null
+        this.Xscale_float = null
+        this.Yscale_float = null
     }
     // x坐标轴部分 对应的构造函数
     xAxis = (g, x) => {
@@ -60,6 +71,37 @@ class Analysis extends React.Component {
             // .call(d3.axisLeft(y).tickFormat((d,index) => index+1))
             .call(g => g.select(".domain").remove())
             .call(g => g.selectAll("text").attr("font-size", "8px"))
+            .call(g => g.selectAll("line").attr("stroke", "rgb(140,140,140)"))
+    }
+    xAxis_float = (g, x) => {
+        const padding = this.padding_float
+        g.attr("transform", `translate(0,${padding.top})`)
+            // .call()函数：对整体集合进行操作，后面括号里的是回调函数。
+            .call(d3.axisBottom(x)) // 坐标生成器
+            .call(g => {
+                g.selectAll("text").attr("dy", -0.9)
+                const text = g.selectAll("text")
+                const textList = text["_groups"][0]
+                for (let i = 0; i < textList.length; i++) {
+                    const strs = textList[i].innerHTML.split(":")
+                    if (strs[1] === "00") {
+                        textList[i].innerHTML = strs[0]
+                    } else {
+                        textList[i].innerHTML = ""
+                    }
+                }
+            })
+            .call(g => g.selectAll("text").attr("font-size", `${8 * 0.4}px`))
+            .call(g => g.selectAll("path").remove())
+            .call(g => g.selectAll("line").remove())
+    }
+    yAxis_float = (g, y) => {
+        const padding = this.padding_float
+        g.attr("transform", `translate(${padding.left},0)`)
+            // .call(d3.axisLeft(y).tickFormat(this.formatDay()))
+            .call(d3.axisLeft(y).tickFormat((d,index) => index+1))
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll("text").attr("font-size", `${8 * 0.4}px`))
             .call(g => g.selectAll("line").attr("stroke", "rgb(140,140,140)"))
     }
     pathareas = (P, N, xScale, yscale) => {
@@ -405,7 +447,7 @@ class Analysis extends React.Component {
             .attr("d", d => {
                 let width = this.Xscale_.bandwidth() + 2 // .bandwidth(): 刻度宽度
                 let height = this.Yscale_.bandwidth() - 2
-                let x = this.Xscale_(d.time)
+                let x = this.Xscale_(d.time) 
                 let y = this.Yscale_(d3.timeDay(d.date_dic))
                 return `M${x} ${y} L${x + width} ${y} L${x} ${y + height} L${x} ${y}`
             })
@@ -420,6 +462,7 @@ class Analysis extends React.Component {
             })
 
         // 绘制下部蓝色
+
         svg.select("#pathangle")
             .selectAll(".path-angle2")
             .data(dataInfo)
@@ -460,6 +503,7 @@ class Analysis extends React.Component {
                 let height = this.Yscale_.bandwidth() - 2
                 let x = this.Xscale_(d.time)
                 let y = this.Yscale_(d3.timeDay(d.date_dic))
+                // let y = this.Yscale_(d.id)
                 return `M${x} ${y} L${x + width} ${y} L${x + width} ${y + height} L${x} ${y + height} L${x} ${y}`
             })
             .attr("stroke", "none")
@@ -476,7 +520,7 @@ class Analysis extends React.Component {
     }
 
     // 聚好类后再运行的部分(处理数据，绘制背景矩阵图)
-    matirxRender = (Klabel,currentDate) => { // 这里的Klabel数据为聚类返回的数据，每个元素都为{时间, 标签值}
+    matirxRender = (Klabel,currentTimeDate) => { // 这里的Klabel数据为聚类返回的数据，每个元素都为{时间, 标签值}
         const KLabeldict = {}
         Klabel.forEach((item) => {
             let time = item.time.split("~")
@@ -545,7 +589,7 @@ class Analysis extends React.Component {
         timeDateList.forEach((date, index) => { // y-m-d
             timeDay.forEach((time) => { // h:m:s
                 let times = parseInt(time.split(":")[0]) // 提取 hour 数据，用于后面确定聚类标签
-                timeInfo.push({ "date": date, "time": time, "above": 0, "below": 0, "mae": new Map(), "date_dic": d3.timeDays(...dateExtent_copy)[index], "label": KLabeldict[times] })
+                timeInfo.push({ "date": date, "time": time, "above": 0, "below": 0, "mae":[], "date_dic": d3.timeDays(...dateExtent_copy)[index], "label": KLabeldict[times] })
             })
         })
 
@@ -557,7 +601,7 @@ class Analysis extends React.Component {
                 let time = this.getTime(item.date_time)
                 timeInfo.forEach((label) => {
                     if (label.date === date && label.time === time) {
-                        label['mae'].set(key,item.testPre - item.dc_power) // testPre: 预测发电数据，dc_power原始发电数据，依次存入所有逆变器的mae数据
+                        label['mae'].push(key,item.testPre - item.dc_power) // testPre: 预测发电数据，dc_power原始发电数据，依次存入所有逆变器的mae数据
                         // if (item.loss_mae > this.MAE) {
                         // if (item.testPre - item.dc_power > 0) {
                         //     label["above"] += 1
@@ -573,9 +617,44 @@ class Analysis extends React.Component {
             })
         }
         // 时间数据
-        this.TimeDate = timeInfo
-        console.log("analysis",timeInfo)
+        // this.TimeDate = timeInfo
+        // console.log("analysis",timeInfo)
         const inverterID = Object.keys(data)
+        const analysis_timeInfo = []
+        inverterID.forEach((id,index) => {
+            timeDay.forEach((time) => {
+                let times = parseInt(time.split(":")[0])
+                analysis_timeInfo.push({"date":currentTimeDate,"id":id,"time":time,"above":0,"below":0,"mae":[], "label": KLabeldict[times]})
+            })
+        })
+
+        // 处理出 timeInfo 里面的mae数据(预测发电量于实际发电量的差值)
+        for (let key in data) {
+            data[key].forEach((item) => {
+                // 再次处理出我们所需的时间数据
+                let date = this.getdate(item.date_time)
+                let time = this.getTime(item.date_time)
+                analysis_timeInfo.forEach((label) => {
+                    
+                    if (label.date === date && label.time === time && label.id === key) {
+                        label['mae'].push( item.testPre - item.dc_power ) // testPre: 预测发电数据，dc_power原始发电数据，依次存入所有逆变器的mae数据
+                        // if (item.loss_mae > this.MAE) {
+                        // if (item.testPre - item.dc_power > 0) {
+                        //     label["above"] += 1
+                        //     label["aboveList"].push(item.loss_mae)
+
+                        // } else if (item.testPre - item.dc_power < 0) {
+                        //     label["below"] += 1
+                        //     label["belowList"].push(item.loss_mae)
+                        // }
+                        // }
+                    }
+                })
+            })
+        }
+
+        // this.TimeDate = analysis_timeInfo
+        this.TimeDate = timeInfo
 
         const xDomainx = new d3.InternSet(timeDay) // 对时间排序
         // 创建x、y轴比例尺
@@ -593,6 +672,8 @@ class Analysis extends React.Component {
         svg.select("#yScale")
             .call(this.yAxis, yScale)
 
+        
+
         // 绘制背景矩阵图
         svg.select("#rectangle")
             .selectAll(".rect-angle")
@@ -602,6 +683,7 @@ class Analysis extends React.Component {
             .attr("x", d => xScale(d.time))
             .attr("y", d => {
                 return yScale(d3.timeDay(d.date_dic))
+                // return yScale(d.id)
             })
             .attr("width", xScale.bandwidth() + 2)
             .attr("height", yScale.bandwidth() - 2)
@@ -635,6 +717,251 @@ class Analysis extends React.Component {
         //     .attr("stroke", "black")
         //     .attr("fill", "none")
     }
+
+    floatingWindowRender = (currentDate,Klabel,anomalyThresholdData) => {
+        const KLabeldict = {}
+        Klabel.forEach((item) => {
+            let time = item.time.split("~")
+            for (let i = parseInt(time[0]); i < parseInt(time[1]); i++) {
+                KLabeldict[i] = item.label
+            }
+        })
+
+        const colorLabel = [
+            "#99cc99",
+            "rgb(250,210,131)",
+            "rgb(190,186,218)",
+            "rgb(204,204,204)",
+            "#FFCC99",
+            "#CCCCFF",
+            "rgb(126,232,154)",
+            "rgb(150,151,177)",
+            "rgb(242,169,104)",
+            "rgb(160,142,216)",
+            "rgb(243,230,136)",
+        ]
+
+        const AllData = this.data
+        const padding = this.padding_float
+        const inverterID = []
+        for (let key in AllData) { // 存入逆变器名称
+            inverterID.push(key)
+        }
+        const dataSection = AllData[inverterID[0]] // 存入data里面第一个逆变器的数据
+        const timeDay = []
+        const timeDict = {} // 时 这一数据的字典
+        const timeDate = {}
+        const timeDateList = []
+        const timeInfo = []
+
+        // 获取所有的时 和 y:m:d 数据
+        dataSection.forEach((item) => {
+            let time = this.getTime(item.date_time) // 获得 h:m:s 结构的时间
+            let date = this.getdate(item.date_time) // 获得 y-m-d 结构的时间
+            // 判断现在数据的时间是不是不在被排除的时间里
+            if ([0, 1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 23].indexOf(item.hour) <= -1) {
+                if (time in timeDict === false) { // 将没有存入的时存入字典中
+                    timeDict[time] = 0
+                }
+            }
+            if (date in timeDate === false) {
+                timeDate[date] = 0 // 存入日期
+            }
+        })
+
+        for (let key in timeDict) {
+            if (key.split(":")[0] !== "05") {
+                timeDay.push(key) // 存入 h:m:s
+            }
+        }
+        for (let key in timeDate) {
+            timeDateList.push(key) // 存入 y-m-d
+        }
+        // timeDateList_copy 多存入 2020-05-14 这一天
+        const timeDateList_copy = ["2020-05-14"]
+        timeDateList.forEach((item) => {
+            timeDateList_copy.push(item) // 存入 y-m-d
+        })
+
+        const analysis_timeInfo = []
+        inverterID.forEach((id,index) => {
+            timeDay.forEach((time) => {
+                let times = parseInt(time.split(":")[0])
+                // currentTimeDate
+                analysis_timeInfo.push({"date":currentDate,"id":id,"time":time,"above":0,"below":0,"mae":[], "label": KLabeldict[times]})
+            })
+        })
+
+        // 处理出 timeInfo 里面的mae数据(预测发电量于实际发电量的差值)
+        for (let key in AllData) {
+            AllData[key].forEach((item) => {
+                // 再次处理出我们所需的时间数据
+                let date = this.getdate(item.date_time)
+                let time = this.getTime(item.date_time)
+                analysis_timeInfo.forEach((label) => {
+                    
+                    if (label.date === date && label.time === time && label.id === key) {
+                        label['mae'].push( item.testPre - item.dc_power ) // testPre: 预测发电数据，dc_power原始发电数据，依次存入所有逆变器的mae数据
+                        // if (item.loss_mae > this.MAE) {
+                        // if (item.testPre - item.dc_power > 0) {
+                        //     label["above"] += 1
+                        //     label["aboveList"].push(item.loss_mae)
+
+                        // } else if (item.testPre - item.dc_power < 0) {
+                        //     label["below"] += 1
+                        //     label["belowList"].push(item.loss_mae)
+                        // }
+                        // }
+                    }
+                })
+            })
+        }
+
+        // console.log("floating window render",analysis_timeInfo)
+
+        const xDomainx = new d3.InternSet(timeDay) // 对时间排序
+        // 创建x、y轴比例尺
+        const xScale = d3.scaleBand(xDomainx, [35, padding.width - padding.right]).padding(0.3)
+        // const yScale = d3.scaleBand(d3.timeDays(...dateExtent_copy), [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
+        const yScale = d3.scaleBand(inverterID, [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
+        // const yScale = d3.scaleOrdinal(inverterID,[6, padding.height - 18]).round(true)
+        
+        d3.select("svg.floatWindow").remove()
+        // const divAppend = d3.select(".Analysis").append("div").attr("background-color","blue")
+        const svg = d3.select("#floatWindow-matrix")
+            .append('svg')
+            .attr("class","floatWindow").attr("background","white")
+            .attr("viewBox", [0, 0, padding.width, padding.height])
+        // 填入坐标轴和比例尺
+        svg.append("g")
+            .attr("id","xScale_float")
+            .call(this.xAxis_float, xScale)
+        svg.append("g")
+            .attr("id",'yScale_float')
+            .call(this.yAxis_float, yScale)
+
+            svg.append("g")
+            .attr("id","rectangle_float")
+            .selectAll(".rect-angle")
+            .data(analysis_timeInfo) // 
+            .join("rect")
+            .attr("class", "rect-angle")
+            .attr("x", d => xScale(d.time))
+            .attr("y", d => {
+                // return yScale(d3.timeDay(d.date_dic))
+                return yScale(d.id)
+            })
+            .attr("width", xScale.bandwidth() + 2)
+            .attr("height", yScale.bandwidth() - 2)
+            .attr("fill", d => {
+                let time = parseInt(d.time.split(":")[0])
+                return colorLabel[KLabeldict[time]]
+            })
+            .attr("stroke", "none")
+            .attr("opacity", 0.3)
+            .attr("time", d => {
+                let time = parseInt(d.time.split(":")[0])
+                return time
+            })
+        // 绘制 红色 和 蓝色 方块
+        const labelMae = {}
+        const labels = []
+        console.log("hold data ",anomalyThresholdData)
+        anomalyThresholdData.forEach((item) => {
+            let mae = item.mae // 阈值
+            labelMae[item.label] = mae // 存入每类的阈值(之前计算出的阈值)
+            labels.push(item.label) // 存入类别标签
+        })
+        let dataInfo = analysis_timeInfo // 每个数据的信息
+        dataInfo.forEach((item) => { // 初始化
+            item.above = 0
+            item.below = 0
+        })
+        labels.forEach((l) => {
+            let dataset = []
+            dataInfo.forEach((item) => {
+                if (parseInt(item.label) === parseInt(l)) {
+                    dataset.push(item) // dataset存入每类的数据
+                }
+            })
+            dataset.forEach((item) => {
+                let above_avg = []
+                let below_avg = []
+                let mae = labelMae[item.label]
+                // 依次遍历该天所有逆变器的mae
+                item.mae.forEach((m) => {
+                    // 绝对值超过阈值的数据
+                    if (Math.abs(m) > mae) {
+                        // 上下范围
+                        if (m > 0) {        // 大于阈值的
+                            item["above"] = 1
+                            above_avg.push(m) 
+                        } else if (m < 0) { // 小于阈值负值的
+                            item["below"] = 1
+                            below_avg.push(Math.abs(m))
+                        }
+                    }
+                })
+                // 根据上下范围确定数据
+                if (above_avg.length === 0) {
+                    item["aboveAvg"] = 0
+                } else {
+                    item["aboveAvg"] = d3.sum(above_avg) / above_avg.length
+                }
+                if (below_avg.length === 0) {
+                    item["belowAvg"] = 0
+                } else {
+                    item["belowAvg"] = d3.sum(below_avg) / below_avg.length
+                }
+            })
+        })
+
+        // 以15min为间隔找出每段时间的mae异常值的最大值
+        const aboveMax = d3.max(dataInfo, d => d.aboveAvg)
+        const belowMax = d3.max(dataInfo, d => d.belowAvg)
+        // 创建比例尺
+        const scaleA = d3.scaleLinear()
+            .domain([0, aboveMax])
+            .range([0, 1])
+        const scaleB = d3.scaleLinear()
+            .domain([0, belowMax])
+            .range([0, 1])
+
+        console.log("dataInfo",dataInfo)
+        
+        const pathSvg = d3.select(".floatWindow").append("g").attr("id","pathangle")
+        // 对于上下两个阈值没有同时超过的
+        // pathSvg.select("#pathangle")
+        pathSvg
+            .selectAll(".path-angle3")
+            .data(dataInfo)
+            .join("path")
+            .attr("class", "path-angle3")
+            .attr("time", d => {
+                let time = parseInt(d.time.split(":")[0])
+                return time
+            })
+            .attr("d", d => {
+                let width = xScale.bandwidth() + 2
+                let height = yScale.bandwidth() - 2
+                let x = xScale(d.time)
+                // let y = this.Yscale_(d3.timeDay(d.date_dic))
+                let y = yScale(d.id)
+                return `M${x} ${y} L${x + width} ${y} L${x + width} ${y + height} L${x} ${y + height} L${x} ${y}`
+            })
+            .attr("stroke", "none")
+            .attr("fill", d => {
+                if (d.above === 1 && d.below === 0) {
+                    return d3.interpolateReds(scaleB(d.aboveAvg))
+                } else if (d.above === 0 && d.below === 1) {
+                    return d3.interpolateBlues(scaleB(d.belowAvg))
+                }
+                else {
+                    return "none"
+                }
+            })
+    }
+
     render() {
         const padding = this.padding
         return (
@@ -668,6 +995,12 @@ class Analysis extends React.Component {
                 <div id="t-loading" style={{ width: "50px", height: "60px", position: "absolute", top: "130px", left: "400px", display: "none" }}>
                     <Spin size="large" />
                 </div>
+                <div id="floatWindow-matrix" style={{zIndex:99,backgroundColor:"white",display: "none",
+                position:'absolute',
+                // left:'20px', top:"20px", 
+                height:0.45 * this.props.theme.height, width: 0.45 * this.props.theme.width,
+                border:"1px solid rgb(180,180,180)",
+                }}></div>
             </div>
         )
     }
