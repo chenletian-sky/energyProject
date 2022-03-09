@@ -460,6 +460,11 @@ class Analysis extends React.Component {
                     return "none"
                 }
             })
+            .on("click",(event,d) => {
+                console.log("pathAngle",event,d)
+
+                this.props.beforeMDSFetch(d)
+            })
 
         // 绘制下部蓝色
 
@@ -486,6 +491,10 @@ class Analysis extends React.Component {
                 } else {
                     return "none"
                 }
+            })
+            .on("click",(event,d) => {
+                
+                this.props.beforeMDSFetch(d)
             })
 
         // 对于上下两个阈值没有同时超过的
@@ -516,6 +525,9 @@ class Analysis extends React.Component {
                 else {
                     return "none"
                 }
+            })
+            .on("click" , (event,d) => {
+                this.props.beforeMDSFetch(d)
             })
     }
 
@@ -697,6 +709,22 @@ class Analysis extends React.Component {
                 let time = parseInt(d.time.split(":")[0])
                 return time
             })
+            .on("click",(event,d) => {
+                console.log("analysis matrix",event,d,yScale(d3.timeDay(d.date_dic)))
+
+                // 添加 矩阵方块点击事件
+                this.props.beforeMDSFetch(d)
+                
+                d3.select(".momentHighlightRectangle").remove()
+                svg.append("rect")
+                    .attr("class","momentHighlightRectangle")
+                    .attr("x", xScale(d.time))
+                    .attr("y",8)
+                    .attr("width",xScale.bandwidth() + 2)
+                    .attr("height",(yScale.bandwidth() - 2)*45)
+                    .attr("fill","#7e96a6")
+                    .attr("opacity",0.8)
+            })
 
         // svg.select("#pathangle")
         //     .selectAll(".path-angle1")
@@ -866,7 +894,7 @@ class Analysis extends React.Component {
         // 绘制 红色 和 蓝色 方块
         const labelMae = {}
         const labels = []
-        console.log("hold data ",anomalyThresholdData)
+
         anomalyThresholdData.forEach((item) => {
             let mae = item.mae // 阈值
             labelMae[item.label] = mae // 存入每类的阈值(之前计算出的阈值)
@@ -927,7 +955,6 @@ class Analysis extends React.Component {
             .domain([0, belowMax])
             .range([0, 1])
 
-        console.log("dataInfo",dataInfo)
         
         const pathSvg = d3.select(".floatWindow").append("g").attr("id","pathangle")
         // 对于上下两个阈值没有同时超过的
@@ -997,7 +1024,8 @@ class Analysis extends React.Component {
                 </div>
                 <div id="floatWindow-matrix" style={{zIndex:99,backgroundColor:"white",display: "none",
                 position:'absolute',
-                // left:'20px', top:"20px", 
+                // left:'20px', 
+                top:"300px", 
                 height:0.45 * this.props.theme.height, width: 0.45 * this.props.theme.width,
                 border:"1px solid rgb(180,180,180)",
                 }}></div>

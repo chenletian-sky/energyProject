@@ -332,7 +332,7 @@ class Abnormal extends React.Component {
     }
     render() {
         return (
-            <div className='Abnormal' style={{ position: 'absolute', ...this.theme }}>
+            <div className='Abnormal' style={{ position: 'absolute', ...this.theme ,display:"none"}}>
                 <div style={{ ...this.theme.title }}>
                     <button id="filterb" onClick={() => {
                         this.props.FilterRender(this.newDis)

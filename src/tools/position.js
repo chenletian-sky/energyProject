@@ -31,8 +31,8 @@ export const Themes={
         width:380,
         height:400,
         border:"1px solid rgb(180,180,180)",
-        left:1120,
-        top:452
+        left:1030, // 1120 => 1030
+        top:315     // 452 => 315
     },
     AbnormalTheme:{
         width:380,
@@ -59,13 +59,13 @@ export const Themes={
         }
     },
     LineCompale:{
-        width:810,
+        width:760, // 810 => 760
         height:538,
         border:"1px solid rgb(180,180,180)",
-        left:305,
+        left:265, // 305 => 265
         top:315,
         title:{
-            width:808,
+            width:758, // 808 => 758
             height:20,
             background:"#F8F8FF"
         }
@@ -78,11 +78,11 @@ export const Themes={
         left:10
     },
     AddInfoTheme:{
-        width:290,
-        height:318,
+        width:380, // 290 => 380
+        height:310, // 318 => 310
         // border:"1px solid rgb(180,180,180)",
-        top:535,
-        left:0,
+        top:0,    // 535 => 0 
+        left:1030, // 0 => 1030
         borderBottom:"1px solid rgb(180,180,180)",
         borderLeft:"1px solid rgb(180,180,180)",
         borderRight:"1px solid rgb(180,180,180)",

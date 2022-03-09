@@ -48,7 +48,7 @@ class AddInfo extends React.Component {
                 for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
                     timeLabel[i] = item.label
                 }
-            })
+            }) 
         })
         for (let key in dataT) {
             times.forEach((t) => {
@@ -73,24 +73,28 @@ class AddInfo extends React.Component {
 
             })
         }
-        console.log(abDict);
-        console.log(maedict);
+
+        // test
+        // console.log(abDict);
+        // console.log(maedict);
+
         for (let key in abDict) {
             number.push(abDict[key])
         }
-        const colorLabel = [
-            "#99cc99",
-            "rgb(250,210,131)",
-            "rgb(190,186,218)",
-            "rgb(204,204,204)",
-            "#FFCC99",
-            "#CCCCFF",
-            "rgb(126,232,154)",
-            "rgb(150,151,177)",
-            "rgb(242,169,104)",
-            "rgb(160,142,216)",
-            "rgb(243,230,136)",
-        ]
+        // const colorLabel = [
+        //     "#99cc99",
+        //     "rgb(250,210,131)",
+        //     "rgb(190,186,218)",
+        //     "rgb(204,204,204)",
+        //     "#FFCC99",
+        //     "#CCCCFF",
+        //     "rgb(126,232,154)",
+        //     "rgb(150,151,177)",
+        //     "rgb(242,169,104)",
+        //     "rgb(160,142,216)",
+        //     "rgb(243,230,136)",
+        // ]
+        const colorLabel = d3.schemeCategory10;
         const scale = d3.scaleLinear()
             .domain([0, 10])
             .range([3, 7])
@@ -100,7 +104,11 @@ class AddInfo extends React.Component {
             let name = circle[i].getAttribute("name")
             let abnum = abDict[name + timefirst + "~" + timelast]
             circle[i].setAttribute("mae", maedict[timefirst + "~" + timelast])
-            let label = parseInt(timeLabel[timefirst])
+            // let label = parseInt(timeLabel[timefirst])
+            let label = this.data[i].color;
+
+            // console.log(this.data[i].color)
+            
             // console.log(isNaN(label), label);
             if (isNaN(label) === true) {
                 circle[i].setAttribute("fill", "rgb(252,146,115)")
@@ -130,6 +138,7 @@ class AddInfo extends React.Component {
     }
     LineHeightRender = () => {
         let data = this.data
+        // console.log(data)
         if (this.page !== undefined && this.dataAll[parseInt(this.page / 2) - 1] !== undefined) {
             data = this.dataAll[parseInt(this.page / 2) - 1]
         }
@@ -247,7 +256,7 @@ class AddInfo extends React.Component {
         }
         return (
             <div className='AddInfo' style={{ position: 'absolute', ...this.theme }}>
-                <Divider style={{ margin: "8px 0" }} />
+                {/* <Divider style={{ margin: "8px 0" }} /> */}
                 <div style={{
                     width: this.theme.width,
                     height: 30

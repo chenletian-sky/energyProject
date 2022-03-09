@@ -160,6 +160,41 @@ class App extends React.Component {
 	ChangeTime = (timeDate) => {
 		this.myAnalysis.current.changeTime(timeDate)
 	}
+	// mds2 用
+	beforeMDSFetch = (currentData) => {
+		console.log("app currentData",currentData)
+		console.log("current",this.myControl.current)
+		this.myControl.current.setState({ scatterLoading: true })
+		const url = "http://localhost:5000/MDS2"
+		const currentTime = currentData.time.split(":")
+		const currentDate = currentData.date.split("-")
+		axios({
+				method: "post",
+				url: url,
+				data: {
+						// "time": this.state.hour1*4+this.state.minute1/15,
+						"time":parseInt(currentTime[0])*4 + parseInt(currentTime[1])/15,
+						// "mae": inputValue,
+						// "month": parseInt(this.state.month) + 1,
+						
+						// "day": this.state.Selectday
+
+						// "month":parseInt(currentDate[1]),
+						// "day":parseInt(currentDate[2])
+				}
+		}).then(responer => {
+				//  
+				// console.log("control mds2\n",this.state.hour1*4+this.state.minute1/15,parseInt(this.state.month) + 1,this.state.Selectday)
+				// test
+				// this.setState({ scatterLoading: false })
+
+
+				this.myControl.current.setState({ scatterLoading: false })
+				this.MDSFetch(responer.data, this.myControl.current.state.inputValue2, parseInt(currentDate[2]), parseInt(currentDate[1]))
+		
+		})
+	}
+
 	componentDidMount() {
 		const url = "http://localhost:5000/data" // 读取每个逆变器的信息
 		const url_inform = 'http://localhost:5000/information' // 数据信息读取
@@ -262,6 +297,7 @@ class App extends React.Component {
 						ref={this.myAnalysis}
 						theme={this.AnalysisTheme}
 						data={this.dataT}
+						beforeMDSFetch={this.beforeMDSFetch}
 					>
 					</Analysis>
 					<LineCompale
@@ -297,6 +333,7 @@ class App extends React.Component {
 						ColorC={this.ColorC}
 						GeneralLineRander={this.GeneralLineRander}
 						ChangeTime={this.ChangeTime}
+						
 					>
 					</Control>
 				</div>

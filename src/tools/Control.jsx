@@ -34,8 +34,11 @@ class Control extends React.Component {
             scatterLoading: false,
             disabled: true,
             Statistics: NaN,
-            anomalyThresholdData:[]
-            
+            anomalyThresholdData:[],
+            hour1: 7,
+            minute1: 0,
+            hour2: 8,
+            minute2: 0
 
         }
         
@@ -242,7 +245,6 @@ class Control extends React.Component {
         // this.ListData = data
         this.props.MAEChange(data) // 散点图部分
 
-        console.log("control attrAdjust",data)
         
         this.props.ColorC(data)    // 中上侧聚类图
         // 存储 分类后的数据
@@ -381,7 +383,6 @@ class Control extends React.Component {
                     d.mae = parseInt(scaleL(newx)) // 修改data数据里的mae阈值的情况。
                     
                     this.props.ColorC(data) // 修改矩阵视图的异常显示情况
-                    console.log("change mae",data)
                     
                     this.props.MAEChange(data)
                     // this.ListData = data
@@ -737,7 +738,6 @@ class Control extends React.Component {
             .domain([0, belowMax])
             .range([0, 1])
 
-        console.log("control yuzhi",thresholdRecommendations,timeDateList)
 
         const {chart} = this
         // this.timeDate
@@ -764,7 +764,7 @@ class Control extends React.Component {
                 let currentDate = getDate(startTime, currentDay).split('-');
                 timeDateList.forEach((item) => {
                     if(item.date === currentDate.join("-")){
-                        console.log("item.data",item)
+                        
 
                     if(!currentYear || currentDate[0] !== currentYear){
                         currentYear = currentDate[0];
@@ -1122,7 +1122,10 @@ class Control extends React.Component {
     render() {
         const { inputValue, inputValue2, display, scatterLoading, disabled, Statistics } = this.state
         const dataT = this.props.dataT
-        const scLoading = scatterLoading === false ? ("Reduced-Dimension Map") : (<Spin />)
+
+        // const scLoading = scatterLoading === false ? ("Reduced-Dimension Map") : (<Spin />)
+        const scLoading = scatterLoading === false ? ("RDM") : (<Spin />)
+
         const sourceKey = this.data
         const keyLength = sourceKey.length
         const MonthE = { 4: "May", 5: "June" }
@@ -1141,6 +1144,15 @@ class Control extends React.Component {
         ]
         const NameLabel = []
         const Pname = []
+
+        // zd-
+        const selectHour = []
+        const selectMinute = [0, 15, 30, 45]
+        for (let i = 0; i < 24; i++) {
+            selectHour.push(i)
+        }
+
+        
         for (let key in dataT) {
             Pname.push(key)
         }
@@ -1481,8 +1493,87 @@ class Control extends React.Component {
                             </Popover>
                         </Row>
                     </div>
+                    <div style={{ padding: 1, width: "217px" , float:"left",display:"none"}}>
+                        <Row gutter={5}>
+                            <Col>
+                                <Select
+                                    size="small"
+                                    dropdownMatchSelectWidth={false}
+                                    className="my-day-select"
+                                    value={this.state.hour1}
+                                    onChange={hour => {
+                                        this.setState({ "hour1": hour })
+                                    }}>
+                                    {selectHour.map( hour => {
+                                        return (
+                                            <Select.Option key={hour} value={hour} className='hour-item'>
+                                                {hour}时
+                                            </Select.Option>
+                                        )
+                                    })}
+                                </Select>
+                            </Col>
+                            <Col>
+                                <Select
+                                    size="small"
+                                    dropdownMatchSelectWidth={false}
+                                    className="my-day-select"
+                                    value={this.state.minute1}
+                                    onChange={minute => {
+                                        this.setState({ "minute1": minute })
+                                    }}>
+                                    {selectMinute.map( minute => {
+                                        return (
+                                            <Select.Option key={minute} value={minute} className='hour-item'>
+                                                {minute}分
+                                            </Select.Option>
+                                        )
+                                    })}
+                                </Select>
+                            </Col>
+                            {/* 至
+                            <Col>
+                                <Select
+                                    size="small"
+                                    dropdownMatchSelectWidth={false}
+                                    className="my-day-select"
+                                    value={this.state.hour2}
+                                    onChange={hour => {
+                                        this.setState({ "hour2": hour })
+                                    }}>
+                                    {selectHour.map( hour => {
+                                        if (hour >= this.state.hour1) {
+                                            return (
+                                                <Select.Option key={hour} value={hour} className='hour-item'>
+                                                    {hour}时
+                                                </Select.Option>
+                                            )
+                                        }
+                                    })}
+                                </Select>
+                            </Col>
+                            <Col>
+                                <Select
+                                    size="small"
+                                    dropdownMatchSelectWidth={false}
+                                    className="my-day-select"
+                                    value={this.state.minute2}
+                                    onChange={minute => {
+                                        this.setState({ "minute2": minute })
+                                    }}>
+                                    {selectMinute.map( minute => {
+                                        return (
+                                            <Select.Option key={minute} value={minute} className='hour-item'>
+                                                {minute}分
+                                            </Select.Option>
+                                        )
+                                    })}
+                                </Select>
+                            </Col> */}
+                        </Row>
+                    </div>
                     {/* 更新矩阵视图的按钮 */}
-                    <div style={{id:'fix_button', background:"linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%)", backgroundColor:"#ffffff", fontWeight: "bold", fontFamily:"Arial", fontSize: "15px", textShadow:"0px 1px 0px #ffffff", color:"#666666", cursor:'pointer', marginTop:"2px", borderRadius:"2px", textAlign:"center", lineHeight:"23px", width: '25px', float:"left", height:"23.5px", marginLeft:"1px", border:"1px solid rgb(180,180,180)"}}
+                    <div style={{id:'fix_button', background:"linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%)", backgroundColor:"#ffffff", fontWeight: "bold", fontFamily:"Arial", fontSize: "15px", textShadow:"0px 1px 0px #ffffff", color:"#666666", cursor:'pointer', marginTop:"2px", borderRadius:"2px", textAlign:"center", lineHeight:"23px", width: '25px', float:"left", height:"23.5px", marginLeft:"1px", border:"1px solid rgb(180,180,180)",display:"none"}}
                         onClick={(e) => {
                             this.timeDate = '2020-' + (this.state.month + 1 >= 10 ? String(this.state.month + 1) : "0" + String(this.state.month + 1)) + '-' + (this.state.Selectday >= 10 ? String(this.state.Selectday) : '0' + String(this.state.Selectday))
                             // this.props.FloatKmeans(this.attrLabel)
@@ -1498,7 +1589,7 @@ class Control extends React.Component {
                         fix
                     </div>
                     {/* 确认按钮 */}
-                    <div style={{ width: this.theme.width, height: "35px", marginTop: "10px", float:"left" }}>
+                    {/* <div style={{ width: this.theme.width, height: "35px", marginTop: "10px", float:"left" }}>
                         <button style={{width: this.theme.width - 10}} disabled={disabled} className="myButton" onClick={() => {
                             const url = "http://localhost:5000/MDS"
                             this.setState({ scatterLoading: true })
@@ -1516,6 +1607,49 @@ class Control extends React.Component {
                                 this.props.MDSFetch(responer.data, inputValue2, this.state.Selectday, parseInt(this.state.month) + 1)
                             })
                         }}>{scLoading}</button>
+                    </div> */}
+
+                    <div style={{ width: this.theme.width/2, height: "35px", marginTop: "10px", float:"left" }}>
+                        <button style={{width: (this.theme.width - 20)/2}} disabled={disabled} className="myButton" onClick={() => {
+                            const url = "http://localhost:5000/MDS1"
+                            this.setState({ scatterLoading: true })
+                            axios({
+                                method: "post",
+                                url: url,
+                                data: {
+                                    "split": inputValue2,
+                                    // "mae": inputValue,
+                                    "month": parseInt(this.state.month) + 1,
+                                    "day": this.state.Selectday
+                                }
+                            }).then(responer => {
+                                this.setState({ scatterLoading: false })
+                                this.props.MDSFetch(responer.data, inputValue2, this.state.Selectday, parseInt(this.state.month) + 1)
+                            })
+                        }}>{scLoading}1</button>
+                    </div>
+                    <div style={{ width: this.theme.width/2, height: "35px", marginTop: "10px", float:"left" }}>
+                        <button style={{width: (this.theme.width - 20)/2}} disabled={disabled} className="myButton" onClick={() => {
+                            const url = "http://localhost:5000/MDS2"
+                            this.setState({ scatterLoading: true })
+                            axios({
+                                method: "post",
+                                url: url,
+                                data: {
+                                    "time": this.state.hour1*4+this.state.minute1/15,
+                                    // "mae": inputValue,
+                                    "month": parseInt(this.state.month) + 1,
+                                    "day": this.state.Selectday
+                                }
+                            }).then(responer => {
+                                //  
+                                console.log("control mds2\n",this.state.hour1*4+this.state.minute1/15,parseInt(this.state.month) + 1,this.state.Selectday)
+                                // test
+                                this.setState({ scatterLoading: false })
+                                this.props.MDSFetch(responer.data, inputValue2, this.state.Selectday, parseInt(this.state.month) + 1)
+                            
+                            })
+                        }}>{scLoading}2</button>
                     </div>
 
                     <div id="Calendar"></div>
