@@ -23,6 +23,7 @@ import 'antd/dist/antd.css';
 import {Spin} from 'antd'
 
 import DataIntroduce from './tools/DataIntroduce.jsx';
+import { URL } from './constant/index.js';
 
 class App extends React.Component {
 	constructor(props) {
@@ -162,15 +163,15 @@ class App extends React.Component {
 	}
 	// mds2 用
 	beforeMDSFetch = (currentData) => {
-		console.log("app currentData",currentData)
-		console.log("current",this.myControl.current)
+		// console.log("app currentData",currentData)
+		// console.log("current",this.myControl.current)
 		this.myControl.current.setState({ scatterLoading: true })
-		const url = "http://localhost:5000/MDS2"
+		// const url = "http://localhost:5000/MDS2"
 		const currentTime = currentData.time.split(":")
 		const currentDate = currentData.date.split("-")
 		axios({
 				method: "post",
-				url: url,
+				url: URL+"/MDS2",
 				data: {
 						// "time": this.state.hour1*4+this.state.minute1/15,
 						"time":parseInt(currentTime[0])*4 + parseInt(currentTime[1])/15,
@@ -195,17 +196,24 @@ class App extends React.Component {
 		})
 	}
 
+	// flag 渲染 环形图用
+	flagRenderPie = (piePathes) => {
+		// this.myFlag.current
+		console.log("flagRenderPie piePathes",piePathes)
+		this.myFlag.current.PieRender(piePathes)
+	}
+
 	componentDidMount() {
 		const url = "http://localhost:5000/data" // 读取每个逆变器的信息
 		const url_inform = 'http://localhost:5000/information' // 数据信息读取
 		axios({
 			method: "post",
-			url: url,
+			url: URL +'/data',
 		}).then(event => {
 			this.dataT = event.data
 			axios({
 				method:'post',
-				url: url_inform,
+				url: URL +"/information",
 			}).then(inform => {
 				this.data_inform = inform.data
 				let sourceKey = []
@@ -251,7 +259,7 @@ class App extends React.Component {
 				this.setState({ num: 1 }, () => {
 					// this.myAnalysis.current.forceShow()
 					// this.myAnalysis.current.matirxRender()
-					this.myFlag.current.PieRender()
+					// this.myFlag.current.PieRender()
 				})
 			})
 			
@@ -305,7 +313,9 @@ class App extends React.Component {
 						theme={this.LineCompaleTheme}
 						data={this.dataT}
 						SimilarSelect={this.SimilarSelect}
-						AveCompare={this.AveCompare}>
+						AveCompare={this.AveCompare}
+						flagRenderPie={this.flagRenderPie}	
+					>
 					</LineCompale>
 					<Abnormal
 						ref={this.myAbnormal}
@@ -314,7 +324,10 @@ class App extends React.Component {
 						FilterRender={this.FilterRender}>
 					</Abnormal>
 
-					<Flag ref={this.myFlag}></Flag>
+					<Flag 
+						ref={this.myFlag}
+						theme={Themes.FlagTheme}	
+					></Flag>
 					
 					{/* 原控制台(含原信息框) */}
 					<Control

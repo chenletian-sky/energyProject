@@ -13,7 +13,10 @@ class Flag extends React.Component {
     data
     constructor(props) {
         super(props)
-        this.state = {}
+        this.state = {
+            startRadius :10, 
+            spacing :30
+        }
         this.theme = this.props.theme
         this.data = this.props.data
     }
@@ -64,9 +67,12 @@ class Flag extends React.Component {
                 }
             })
     }
-    PieRender = () => {
+    // 环形图 主渲染函数
+    PieRender = (piePath) => {
+        const {startRadius,spacing} = this.state
+        // test  
         const data1 = [
-            { "name": "ir", "value": 0.8 },
+            { "name": "ir", "value": 1.8 },
             { "name": "none", "value": 0.2 }
         ]
         const data2 = [
@@ -77,20 +83,33 @@ class Flag extends React.Component {
             { "name": "at", "value": 0.6 },
             { "name": "none", "value": 0.4 }
         ]
+        // 渲染环形 最外侧
         let arcs1 = this.dataDeal(data1)
-        this.PieShow(arcs1, 20, 25, "ir")
+        // ir
+        this.PieShow(piePath["ir"],startRadius+spacing*2, startRadius+spacing*3, "ir")
+        // mt
         let arcs2 = this.dataDeal(data2)
-        this.PieShow(arcs2, 15, 20, "mt")
+        this.PieShow(piePath["mt"], startRadius+spacing, startRadius+spacing*2, "mt")
+        // at
         let arcs3 = this.dataDeal(data3)
-        this.PieShow(arcs3, 10, 15, "at")
+        this.PieShow(piePath["at"], startRadius, startRadius + spacing, "at")
+        
+        // console.log("flag",[arcs1,arcs2,arcs3],piePath)
     }
     render() {
+        const {width,height} = this.props.theme
         return (
-            <div className='Flag' style={{ position: 'absolute', top: 900, left: 10, width: 300, height: 300 }} >
-                <svg style={{ width: 300, height: 300 }} id="p">
-                    <g id="pie" transform='translate(150,150)'></g>
+            <div className='Flag' 
+                style={{...this.props.theme}} 
+            >
+                {/* 测试用 */}
+                {/* <button id="renderPie" onClick={() => this.PieRender()}>renderPie</button> */}
+                <svg style={{ width: this.props.theme.width, height: this.props.theme.height }} id="p">
+                    <g id="pie" 
+                        transform={`translate(${width/2},${height/2})`}
+                    ></g>
                 </svg>
-            </div >
+            </div>
         )
     }
 }

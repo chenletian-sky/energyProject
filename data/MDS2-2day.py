@@ -42,18 +42,20 @@ class MDS_D:
             # for time in self.splitTime:
             #     abnornal = 0
             #     t = 0
-            # node = []
+            node = []
             for index,item in enumerate(self.dataFilter[key]):
                 t = item['hour']*4+index%4
                 if t == self.time:
                     # print(key)
                     node.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
-                    self.tags.append({
-                    "id": key,
-                    "split": [int(self.time/4),int(self.time/4)+1],
+                    if len(node) % 2 == 0:
+                        self.tags.append({
+                        "id": key,
+                        "split": [int(self.time/4),int(self.time/4)+1],
                                 # "abnum":abnornal
-                    })
-        self.matx = node
+                        })
+                        self.matx.append(node)
+                        node = []
         # print(self.matx)
         # clustering = DBSCAN(eps=5, min_samples=10).fit(self.matx)
         self.similar = []

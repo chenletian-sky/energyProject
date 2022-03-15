@@ -1,6 +1,7 @@
 import React from 'react'
 import './all.css'
 import 'antd/dist/antd.css'
+import 'rc-calendar/assets/index.css';
 import { Slider, InputNumber, Row, Col, Select, Spin } from 'antd'
 import { Popover } from 'antd';
 import { debounce, DelectAllg, DeletTemp } from './methods.js'
@@ -9,9 +10,11 @@ import { Divider } from 'antd';
 // import { LoadingOutlined } from '@ant-design/icons'
 // import { Spin } from 'antd'
 import * as d3 from 'd3';
+import Calendar from 'rc-calendar';
 import $ from 'jquery'
 // import Calendar from "./calendar/index"
 import Chart from "./calendar/chart";
+import { URL } from '../constant';
 const calendar_data = require("./calendar/data.json")
 
 
@@ -519,13 +522,14 @@ class Control extends React.Component {
             hoverColor: 'red',
             startTime: '2020-05-15',
             endTime: '2020-06-17',
-            cellWidth: 15,
-            cellHeight: 15,
-            cellPadding: 1,
+            cellWidth: 25,
+            cellHeight: 25,
+            cellPadding: 4,
             cellColor1: 'white',
             cellColor2: 'green',
             lineColor: 'yellow',
-            lineWidth: 2
+            lineWidth: 2,
+            rectRxRy:5
         }
 
         const startTime = new Date(config.startTime)
@@ -738,6 +742,15 @@ class Control extends React.Component {
             .domain([0, belowMax])
             .range([0, 1])
 
+        const scaleAB = d3.scaleLinear()
+                            .domain([0,aboveMax + belowMax])
+                            .range([0,1])
+        
+        const myBackgroundColor = "RGB(240,240,240)"
+
+        const computeGreen = d3.interpolateRgb(myBackgroundColor,"rgb(0, 148, 50)")
+        const computeRed = d3.interpolateRgb("rgb(204, 204, 204)","rgb(244, 67, 54)")
+
 
         const {chart} = this
         // this.timeDate
@@ -758,7 +771,7 @@ class Control extends React.Component {
             const mainBody = chart.body()
                                     .append('g')
                                     .attr('class', 'date')
-                                    .attr('transform', 'translate(' + 45 + ',' + 20 + ')')
+                                    .attr('transform', 'translate(' + 40 + ',' + 20 + ')')  // 45 -> 
             
             while(currentDay <= totalDays){
                 let currentDate = getDate(startTime, currentDay).split('-');
@@ -790,17 +803,43 @@ class Control extends React.Component {
                         .attr('height', config.cellHeight)
                         // .attr('x', Math.floor(currentDay / 7) * widthOffset)
                         // .attr('y', currentDay % 7 * heightOffset);
-                        .attr('x', currentDay % 7 * widthOffset)
-                        .attr('y', Math.floor(currentDay / 7) * heightOffset)
-                        .attr('fill',"rgb(204,204,204)")
+                        .attr('x', currentDay % 7 * widthOffset + config.cellPadding)
+                        .attr('y', Math.floor(currentDay / 7) * heightOffset + config.cellPadding)
+                        .attr('rx',() => {
+                            return config.rectRxRy
+                        })
+                        .attr('ry',() => {
+                            return config.rectRxRy
+                        })
+                        .attr('fill',myBackgroundColor)
                     
                         const svg = monthGroup.append('g')
                             .attr('class','pathAngle' + currentDate.join('-'))
+
+                    monthGroup.append('text')
+                    .datum(item)
+                    .attr('class', "g path-text" + currentDate.join("-"))
+                    .attr("x",d => {
+                        let x = currentDay % 7 * widthOffset + config.cellWidth/3
+                        return x 
+                    })
+                    .attr("y",d => {
+                        let y = Math.floor(currentDay / 7) * heightOffset + config.cellHeight*7/8
+                        return y 
+                    })
+                    .attr("font-size","15px")
+                    // .attr("z-index","99")
+                    .text((d)=>{
+
+                        const date = d.date.split("-")
+                        return date[2]
+                    });
                     // 先绘制上部的红色三角形
                     // svg.select("#pathangle")
                     // .selectAll(".path-angle1")
 
-                        svg.append("path")
+                        svg
+                        // .append("path")
                         // d3.select(".g pathAngle" + currentDate.join("-"))
                         .datum(item)
                         
@@ -822,7 +861,8 @@ class Control extends React.Component {
                         .attr("fill", d => {
                             // 判断是否上下阈值都超过了，超过了即填充颜色
                             if (d.above === 1 && d.below === 1) {
-                                return d3.interpolateReds(scaleA(d.aboveAvg))
+                                return computeRed(scaleA(d.aboveAvg))
+                                // return d3.interpolateReds(scaleA(d.aboveAvg))
                             } else {
                                 return "none"
                             }
@@ -834,7 +874,7 @@ class Control extends React.Component {
                     
                     // d3.select("g pathAngle" + currentDate.join("-"))
                         svg
-                        .append("path")
+                        // .append("path")
                         .datum(item)
                         .attr("class", "g path-angle2" + currentDate.join("-"))
                         // .attr("time", d => {
@@ -853,7 +893,8 @@ class Control extends React.Component {
                         .attr("stroke", "none")
                         .attr("fill", d => {
                             if (d.above === 1 && d.below === 1) {
-                                return d3.interpolateBlues(scaleB(d.belowAvg))
+                                return computeGreen(scaleB(d.belowAvg))
+                                // return d3.interpolateBlues(scaleB(d.belowAvg))
                             } else {
                                 return "none"
                             }
@@ -867,33 +908,63 @@ class Control extends React.Component {
                 // monthGroup.append("g")
                 // d3.select("g.g pathAngle" + currentDate.join("-"))
                     svg
-                    .append("path")
+                    .append("rect")
                     .datum(item)
                     .attr("class", "g path-angle3" + currentDate.join("-"))
                     // .attr("time", d => {
                     //     let time = parseInt(d.time.split(":")[0])
                     //     return time
                     // })
-                    .attr("d", d => {
-                        // let width = this.Xscale_.bandwidth() + 2
-                        // let height = this.Yscale_.bandwidth() - 2
-                        // let x = this.Xscale_(d.time)
-                        // let y = this.Yscale_(d3.timeDay(d.date_dic))
+                    // .attr("d", d => {
+                    //     // let width = this.Xscale_.bandwidth() + 2
+                    //     // let height = this.Yscale_.bandwidth() - 2
+                    //     // let x = this.Xscale_(d.time)
+                    //     // let y = this.Yscale_(d3.timeDay(d.date_dic))
+                    //     let x = currentDay % 7 * widthOffset
+                    //     let y = Math.floor(currentDay / 7) * heightOffset
+                    //     return `M${x} ${y} L${x + widthOffset} ${y} L${x + widthOffset} ${y + heightOffset} L${x} ${y + heightOffset} L${x} ${y}`
+                    // })
+                    .attr("x",d => {
                         let x = currentDay % 7 * widthOffset
+                        return x + config.cellPadding
+                    })
+                    .attr("y",d => {
                         let y = Math.floor(currentDay / 7) * heightOffset
-                        return `M${x} ${y} L${x + widthOffset} ${y} L${x + widthOffset} ${y + heightOffset} L${x} ${y + heightOffset} L${x} ${y}`
+                        return y + config.cellPadding
+                    })
+                    .attr("height" , d => {
+                        return config.cellHeight
+                    } )
+                    .attr("width",d => {
+                        return config.cellWidth
+                    })
+                    .attr('rx',() => {
+                        return config.rectRxRy
+                    })
+                    .attr('ry',() => {
+                        return config.rectRxRy
                     })
                     .attr("stroke", "none")
+                    .attr("border-radius","4px 4px")
+                    .attr("border","1px")
                     .attr("fill", d => {
-                        if (d.above === 1 && d.below === 0) {
-                            return d3.interpolateReds(scaleB(d.aboveAvg))
-                        } else if (d.above === 0 && d.below === 1) {
-                            return d3.interpolateBlues(scaleB(d.belowAvg))
+                        // if (d.above === 1 && d.below === 0) {
+                        //     return computeRed(scaleB(d.aboveAvg))
+                        //     // return d3.interpolateReds(scaleB(d.aboveAvg))
+                        // } 
+                        
+                         if (d.above === 1 || d.below === 1) {
+                            // return d3.interpolateGreens(scaleAB(d.belowAvg + d.aboveAvg))
+                            return computeGreen(scaleAB(d.belowAvg + d.aboveAvg))
+                            // return d3.interpolateBlues(scaleB(d.belowAvg))
                         }
                         else {
                             return "none"
                         }
                     })
+
+                    
+                
 
 
             
@@ -913,6 +984,25 @@ class Control extends React.Component {
                         // .attr('fill',"rgb(204,204,204)")
                         // .datum(item);
                 });
+
+            // 绘制颜色比例尺
+            let linear = d3.scaleLinear().domain([0, 10]).range([0, 1])
+            // let compute = d3.interpolate('red', 'blue')
+            // computeGreen
+
+            const myColorScale =  d3.select('.body')
+                                    .append('g')
+                                    .attr("transform",`translate(${10},${10})`)
+                                    // .attr("viewBox", [0, 0, 100, 100])
+            
+            myColorScale.selectAll('.rect colorScale').data(d3.range(10)).enter()
+                        .append('rect')
+                        .attr("class",'rect colorScale')
+                        .attr('y', (d,i) => i * 18)
+                        .attr('x', 0)
+                        .attr('width', 15)
+                        .attr('height', 18)
+                        .style('fill', (d,i) => computeGreen(linear(d)))
 
             function getTotalDays(startTime, endTime){
                 return Math.floor((endTime.getTime() - startTime.getTime()) / 86400000);
@@ -975,7 +1065,8 @@ class Control extends React.Component {
         /* ----------------------------渲染文本标签------------------------ */
         chart.renderText = function(){
             // let week = ['Sun', 'Mon', 'Tue', 'Wed', 'Tur', 'Fri', 'Sat'];
-            let week = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            // let week = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            let week = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
             d3.select('.year')
                 .append('g')
@@ -987,7 +1078,7 @@ class Control extends React.Component {
                 .attr('class', 'label')
                 .attr('x', 0)
                 .attr('y',  -10)
-                .attr('dx', (d,i) => i * heightOffset + 4)
+                .attr('dx', (d,i) => i * widthOffset + 6)
                 .text((d)=>d);
 
             let months = d3.timeMonth.range(
@@ -1058,7 +1149,8 @@ class Control extends React.Component {
                     // const e = d3.event
                     const e = event
                     const position = d3.pointer(event,chart.svg().node());
-    
+                    
+                    // console.log("mouseEnter",event,d)
                     // d3.select(e.target)
                     //     .attr('fill', config.hoverColor);
                     // console.log("node mouseEnter",d)
@@ -1357,7 +1449,7 @@ class Control extends React.Component {
                                     const url = "http://localhost:5000/Kmeans"
                                     axios({
                                         method: "post",
-                                        url: url,
+                                        url: URL + "/Kmeans",
                                         data: {
                                             "split": inputValue2, // 小时间隔
                                             "k": inputValue,
@@ -1380,8 +1472,11 @@ class Control extends React.Component {
                                         this.props.KmeansR(this.attrLabel,this.timeDate)
                                         this.AttrsAdjust()//分类的滑动条
 
+
                                         // 绘制日历图
                                         this.calendarRender()
+                                        
+
                                         // this.StatisticsRender()//统计信息
                                         this.setState({ disabled: false })
                                         Lo.style.display = "none"
@@ -1615,7 +1710,7 @@ class Control extends React.Component {
                             this.setState({ scatterLoading: true })
                             axios({
                                 method: "post",
-                                url: url,
+                                url: URL + "/MDS1",
                                 data: {
                                     "split": inputValue2,
                                     // "mae": inputValue,
@@ -1634,7 +1729,7 @@ class Control extends React.Component {
                             this.setState({ scatterLoading: true })
                             axios({
                                 method: "post",
-                                url: url,
+                                url: URL + "/MDS2",
                                 data: {
                                     "time": this.state.hour1*4+this.state.minute1/15,
                                     // "mae": inputValue,

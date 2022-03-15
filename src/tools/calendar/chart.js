@@ -119,7 +119,7 @@ export default class Chart {
                             // .attr('transform',"rotate(90)")
                             // .attr('transform',`rotate(90,${this._width/2},${this._height/2}) translate(${30},${50})`)
                             // .attr('transform',`translate(${-10},${100})`)
-                            .attr('transform', 'translate(' + this.bodyX() + ',' + this.bodyY() + ')')
+                            .attr('transform', 'translate(' + this.bodyX()/4 + ',' + this.bodyY() + ')')
                             // .attr('clip-path', "url(#clip)");
         }
 

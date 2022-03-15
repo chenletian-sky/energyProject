@@ -375,7 +375,7 @@ class Analysis extends React.Component {
                 }
             })
         })
-        console.log(dataInfo);
+        // console.log(dataInfo);
         // 以15min为间隔找出每段时间的mae异常值的最大值
         const aboveMax = d3.max(dataInfo, d => d.aboveAvg)
         const belowMax = d3.max(dataInfo, d => d.belowAvg)

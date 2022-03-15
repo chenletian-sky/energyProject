@@ -13,7 +13,7 @@ export const Themes={
     // 控制台
     ControlTheme:{
         width:250, // 290 - 40 = 250
-        height:445, // 525 - 80 = 435
+        height:508, // 525 - 80 = 435 445 -> 508
         // border:"1px solid rgb(180,180,180)",
         borderTop:"1px solid rgb(180,180,180)",
         borderLeft:"1px solid rgb(180,180,180)",
@@ -29,7 +29,7 @@ export const Themes={
     },
     CompareTheme:{
         width:380,
-        height:400,
+        height:538, // 400 -> 538
         border:"1px solid rgb(180,180,180)",
         left:1030, // 1120 => 1030
         top:315     // 452 => 315
@@ -99,5 +99,13 @@ export const Themes={
             height:20,
             background:"#E9E9FF"
         }
+    },
+    FlagTheme:{
+        position: 'absolute', 
+        top: 605, // 900 -> 585s 
+        left: 10, 
+        width: 250, 
+        height: 250,
+        border:"1px solid rgb(180,180,180)",
     }
 }

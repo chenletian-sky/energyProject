@@ -282,6 +282,7 @@ class LineCompale extends React.Component {
 			let I = d3.range(N.length).filter(i => !isNaN(V[i]));
 			arcs.push(d3.pie().padAngle(padAngle).sort(null).value(i => V[i])(I))
 		})
+		// console.log("pieShow arcs",arcs)
 		const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius)
 		const gs = svg.append("g")
 		const gp = gs.selectAll("g")
@@ -290,7 +291,10 @@ class LineCompale extends React.Component {
 			.attr("class", method)
 			.attr("transform", (d, i) => `translate(${circle[i][0]},${circle[i][1]})`)
 		gp.selectAll("path")
-			.data(d => d)
+			.data(d => {
+				// console.log("pie show path d",d)
+				return d
+			})
 			.join("path")
 			.attr("d", arc)
 			.attr("stroke", stroke)
@@ -318,8 +322,11 @@ class LineCompale extends React.Component {
 				}
 			})
 			.attr("method", method)
+			// .attr("data",d => d.data)
 			.on("click", (e) => {
 				if (id === "select") {
+					// console.log("select pie ",e)
+
 					let posx = e.clientX - this.theme.left + document.documentElement.scrollLeft
 					let posy = e.clientY - this.theme.top - 20 + document.documentElement.scrollTop
 					let Num = 0
@@ -350,8 +357,10 @@ class LineCompale extends React.Component {
 							irr_T.push(irr)
 							at_T.push(at)
 							mt_T.push(mt)
+							console.log("select pie",irr,at,mt,this.RectCircle[i])
 						}
 					}
+
 					console.log(this.RectCircle)
 					console.log(this.SimilarCircle)
 					console.log(Num)
@@ -367,6 +376,8 @@ class LineCompale extends React.Component {
 					}
 
 					this.AllPieRender(id)
+					// 渲染 主视图 中的环形图
+					const sendInfo = []
 					for (let key in this.SelectClickPie) {
 						let r1 = 0
 						let r2 = 0
@@ -382,9 +393,23 @@ class LineCompale extends React.Component {
 						}
 						this.SelectClickPie[key].forEach((item) => {
 							this.LightPieRender(Number, item[Number], id, key, r1, r2)
+
+							const data = item[Number]
+							const innerRadiu = r1
+							const outerRadiu = r2
+							const stroke = "rgb(180,180,180)"
+							const padAngle = stroke === "none" ? 1 / outerRadiu : 0	
+							const temptNode = (document.getElementById(id).getElementsByClassName(key)[Number]).children
+							let arcs = []
+							let N = d3.map(data, d => d.name)
+							let V = d3.map(data, d => d.value)
+							let I = d3.range(N.length).filter(i => !isNaN(V[i]));
+							arcs.push(d3.pie().padAngle(padAngle).sort(null).value(i => V[i])(I))
+							const arc = d3.arc().innerRadius(innerRadiu).outerRadius(outerRadiu)
+							sendInfo[key] = arcs
 						})
 					}
-
+					this.props.flagRenderPie(sendInfo)
 					let abs = 0
 					for (let key in this.CompareClickPie) {
 						if (abs >= Numbers.length) {
@@ -411,6 +436,7 @@ class LineCompale extends React.Component {
 							abs += 1
 						}
 					}
+					console.log("test aveCompare irr_T, at_T, mt_T, MAE, Value, Pre",irr_T, at_T, mt_T, MAE, Value, Pre)
 					this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
 				}
 			})
@@ -989,7 +1015,7 @@ class LineCompale extends React.Component {
 			values.forEach((item) => {
 				if (item.v === Cmin) {
 					Cy = item.y
-					console.log(Cy);
+					// console.log(Cy);
 				}
 			})
 			let Sy = parseFloat(this.RectCircle[i].getAttribute("cy"))
@@ -1161,7 +1187,7 @@ class LineCompale extends React.Component {
 			let first = item.first
 			let end = item.end
 			let select = []
-			console.log(first);
+			// console.log(first);
 			let splitfeatures = []
 			data[name].forEach((d) => {
 				if (d.month === month && d.day === day) {
@@ -1295,7 +1321,7 @@ class LineCompale extends React.Component {
 						stateBar.onmousedown = (e) => {
 							let posx = e.clientX + document.documentElement.scrollLeft
 							let posy = e.clientY + document.documentElement.scrollTop
-							console.log(document.documentElement.scrollTop);
+							// console.log(document.documentElement.scrollTop);
 							let MousePoseStart = [posx - this.theme.left, posy - this.theme.top - 20]
 							let div = document.createElement("div")
 							div.className = "tempDiv"

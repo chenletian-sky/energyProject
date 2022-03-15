@@ -955,6 +955,9 @@ class Analysis extends React.Component {
             .domain([0, belowMax])
             .range([0, 1])
 
+        const computeGreen = d3.interpolateRgb("rgb(204, 204, 204)","rgb(139, 195, 74)")
+        const computeRed = d3.interpolateRgb("rgb(204, 204, 204)","rgb(244, 67, 54)")
+
         
         const pathSvg = d3.select(".floatWindow").append("g").attr("id","pathangle")
         // 对于上下两个阈值没有同时超过的
