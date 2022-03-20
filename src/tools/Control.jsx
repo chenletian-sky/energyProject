@@ -1709,6 +1709,10 @@ class Control extends React.Component {
                     <div style={{ width: this.theme.width/2, height: "35px", marginTop: "10px", float:"left" }}>
                         <button style={{width: (this.theme.width - 20)/2}} disabled={disabled} className="myButton" onClick={() => {
                             const url = "http://localhost:5000/MDS1"
+                            const myMae = []
+                            for (let i = 0; i < document.getElementsByClassName('textmae').length; i++) {
+                                myMae.push(document.getElementsByClassName('textmae')[i].textContent)
+                            }
                             this.setState({ scatterLoading: true })
                             axios({
                                 method: "post",
@@ -1717,7 +1721,8 @@ class Control extends React.Component {
                                     "split": inputValue2,
                                     // "mae": inputValue,
                                     "month": parseInt(this.state.month) + 1,
-                                    "day": this.state.Selectday
+                                    "day": this.state.Selectday,
+                                    "mae": myMae
                                 }
                             }).then(responer => {
                                 this.setState({ scatterLoading: false })

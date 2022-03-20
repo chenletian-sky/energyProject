@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import sys
+import math
 from sklearn.manifold import MDS
 from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN
@@ -11,6 +12,7 @@ class MDS_D:
         # self.mae = int(sys.argv[1:][1])
         self.month = int(sys.argv[1:][1])
         self.day = int(sys.argv[1:][2])
+        self.mae = eval(sys.argv[1:][3])
         self.splitTime = []
         self.mds_data = []
         self.dataFilter = dict()
@@ -33,24 +35,48 @@ class MDS_D:
         for key in self.data:
             dataset = []
             for item in self.data[key]:
-                if item['month']==self.month and item['day']==self.day:
-                    dataset.append(item)
+                # if item['month']==self.month and item['day']==self.day:
+                dataset.append(item)
+                # if len(dataset) > 500:
+                #     break
             self.dataFilter[key]=dataset
         for key in self.dataFilter:
-            for time in self.splitTime:
+            for index, time in enumerate(self.splitTime):
                 abnornal = 0
                 node = []
+                t = int(index/(12/self.time/len(self.mae)))
                 for item in self.dataFilter[key]:
-                    if item['hour']>=time[0] and item['hour']<time[1]:
-                        node.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
+                    if item['testPre'] == 0.0:
+                        test = 0
+                    elif item['testPre'] > 0:
+                        test = math.log(item['testPre'])
+                    else:
+                        test = -math.log(abs(item['testPre']))
+                    if item['dc_power'] == 0.0:
+                        actual = 0
+                    elif item['dc_power'] > 0:
+                        actual = math.log(item['dc_power'])
+                    else:
+                        actual = math.log(abs(item['dc_power']))
+                    # if item['hour']>=time[0] and item['hour']<time[1] and abs(test-actual)>math.log(self.mae[index]):
+                    if item['hour'] >= time[0] and item['hour'] < time[1] and math.log(abs(item['testPre'] - item['dc_power']), self.mae[t]) > 1.1664:
+                        # node.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
                         # if item['loss_mae']>self.mae:
                         #     abnornal+=1
-                self.matx.append(node)
-                self.tags.append({
-                    "id": key,
-                    "split": time,
-                    # "abnum":abnornal
-                })
+                        # node.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
+                        self.matx.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
+                        self.tags.append({
+                            "id": key,
+                            "split": time,
+                        # "abnum":abnornal
+                        })
+                # if node != []:
+                #     self.matx.append(node)
+                #     self.tags.append({
+                #         "id": key,
+                #         "split": time,
+                #         # "abnum":abnornal
+                #     })
         self.similar = []
         # for i in range(len(self.matx)):
         #     row = []
@@ -65,7 +91,8 @@ class MDS_D:
             self.similar.append(one)
         self.similar = np.mat(self.similar)
         embedding = MDS(n_components=2)
-        pca = PCA(n_components=2)
+        # pca = PCA(n_components=2)
+        # print(self.similar)
         X_transformed = embedding.fit_transform(self.similar)
         clustering = DBSCAN(eps=170, min_samples=5).fit(X_transformed)
         labels = clustering.labels_
@@ -85,5 +112,5 @@ def main():
     mds = MDS_D()
 if __name__ == "__main__":
     # fileName = "D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\含注释系统\\data\\dataLast.json"
-    fileName = "D:\\新加卷\\不忘初心\\能源项目\\算法和系统\\含注释系统\\data\\dataLast.json"
+    fileName = "D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\energyProject\\data\\dataLast.json"
     main()

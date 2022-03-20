@@ -72,9 +72,11 @@ app.post('/MDS1',(req,res)=>{
     // const mae = data.mae
     const month = data.month
     const day = data.day
+    const mae = data.mae
+    console.log(mae)
     // console.log(split,month,day)
     let workerProcess = child_process.exec(
-        `python ./data/MDS1.py ${split} ${month} ${day}`,
+        `python ./data/MDS1.py ${split} ${month} ${day} ${mae}`,
         (error, stdout, stderr)=>{
             if (error) {
                 console.log(error.stack);
@@ -96,7 +98,8 @@ app.post('/MDS2',(req,res)=>{
     const time = data.time
     const month = data.month
     const day = data.day
-    console.log(time, month,day)
+    const mae = data.mae
+    console.log(mae)
     let workerProcess = child_process.exec(
         `python ./data/MDS2-2day.py ${time} ${month} ${day}`,
         (error, stdout, stderr)=>{
