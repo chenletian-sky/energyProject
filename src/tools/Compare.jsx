@@ -395,7 +395,9 @@ class Compare extends React.Component {
                         .attr("x", () => {
                             return scaleX(dataset2_copy[0]) + 10
                         })
-                        .attr("y", 295)
+                        // x轴对应的横纵坐标
+                        // .attr("y", 295)
+                        .attr("y",432)
                         .attr("font-size", "10px")
                 }
                 else {

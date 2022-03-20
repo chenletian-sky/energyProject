@@ -109,15 +109,18 @@ class App extends React.Component {
 	LineCompareChange = (name, time, mae, maeList) => {
 		
 		this.myLineCompale.current.DelectAllg()
-		this.myLineCompale.current.sourceKey = name
+		// 柱状图更新
 		this.myAbnormal.current.sourceKey = name
+		// 曲线图参数更新
+		this.myLineCompale.current.sourceKey = name
 		this.myLineCompale.current.mae = parseInt(mae) - 1
 		this.myLineCompale.current.times = time
 		this.myLineCompale.current.maeList = maeList
+
 		this.myLineCompale.current.setState({ total: false }, () => {
 			this.myLineCompale.current.LineRender()
 		})
-
+		// 右下角 对比图更新
 		this.myCompare.current.ImportShow()
 	}
 	SimilarSelect = (distance) => {
@@ -306,6 +309,7 @@ class App extends React.Component {
 						theme={this.AnalysisTheme}
 						data={this.dataT}
 						beforeMDSFetch={this.beforeMDSFetch}
+						LineCompareChange={this.LineCompareChange}
 					>
 					</Analysis>
 					<LineCompale

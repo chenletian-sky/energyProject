@@ -193,6 +193,7 @@ class AddInfo extends React.Component {
             .attr("stroke-linejoin", "round")
             .attr("stroke-width", (d, i) => i % 5 ? 0.25 : 1)
             .attr("d", d3.geoPath())
+
         svg.select("#circle")
             .selectAll(".circleC")
             .data(data)
@@ -210,16 +211,31 @@ class AddInfo extends React.Component {
             .attr("timelast", d => d.split[1])
             .on("click", (e) => {
                 DeletTemp()
+                
                 d3.select("#compaleline").selectAll("g").remove()
+                
                 if (isNaN(this.selectCircle)) {
                     this.selectCircle.setAttribute("stroke", "white")
                 }
+
                 e.target.setAttribute("stroke", "black")
                 this.selectCircle = e.target
+                // 逆变器 id
                 const name = e.target.getAttribute("name")
+                // 所处的时间段 eg: 9 ~ 19
                 const times = { "first": e.target.getAttribute("timefirst"), "end": e.target.getAttribute("timelast") }
+                // 当前类别下的 阈值 (即跟随滑动条变化的阈值)
                 const maes = e.target.getAttribute("mae")
+                // 当前的类别的总阈值数据 (即当前滑动条绘制数据)
+                // this.mae
+
+                // test console
+                console.log('addInfo test lineCompareChange',name,times,maes,this.mae)
+
+                // 核心LineCompareChange 
+                // 交互传参 当前逆变器的id 时间段(聚类的时间段 eg:["13~16"]) 当前类别的设定阈值(mae) 当前聚类，步长 以及阈值的总数据
                 this.props.LineCompareChange(name, times, maes, this.mae)
+                // 右下角 compare 改变
                 this.props.KeyNameChange(name, this.month, this.day, this.mae)
             })
     }

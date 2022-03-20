@@ -1,6 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 import { Spin } from 'antd';
+import {DeletTemp} from "./methods"
 class Analysis extends React.Component {
     theme
     data
@@ -67,8 +68,8 @@ class Analysis extends React.Component {
     yAxis = (g, y) => {
         const padding = this.padding
         g.attr("transform", `translate(${padding.left},0)`)
-            .call(d3.axisLeft(y).tickFormat(this.formatDay()))
-            // .call(d3.axisLeft(y).tickFormat((d,index) => index+1))
+            // .call(d3.axisLeft(y).tickFormat(this.formatDay()))
+            .call(d3.axisLeft(y).tickFormat((d,index) => index+1))
             .call(g => g.select(".domain").remove())
             .call(g => g.selectAll("text").attr("font-size", "8px"))
             .call(g => g.selectAll("line").attr("stroke", "rgb(140,140,140)"))
@@ -435,7 +436,7 @@ class Analysis extends React.Component {
         // 绘制上下阈值都超过了的矩形
         // 先绘制上部的红色三角形
 
-        svg.select("#pathangle")
+        /* svg.select("#pathangle")
             .selectAll(".path-angle1")
             .data(dataInfo)
             .join("path")
@@ -464,11 +465,11 @@ class Analysis extends React.Component {
                 console.log("pathAngle",event,d)
 
                 this.props.beforeMDSFetch(d)
-            })
+            }) */
 
         // 绘制下部蓝色
 
-        svg.select("#pathangle")
+        /* svg.select("#pathangle")
             .selectAll(".path-angle2")
             .data(dataInfo)
             .join("path")
@@ -495,7 +496,7 @@ class Analysis extends React.Component {
             .on("click",(event,d) => {
                 
                 this.props.beforeMDSFetch(d)
-            })
+            }) */
 
         // 对于上下两个阈值没有同时超过的
         svg.select("#pathangle")
@@ -511,10 +512,11 @@ class Analysis extends React.Component {
                 let width = this.Xscale_.bandwidth() + 2
                 let height = this.Yscale_.bandwidth() - 2
                 let x = this.Xscale_(d.time)
-                let y = this.Yscale_(d3.timeDay(d.date_dic))
-                // let y = this.Yscale_(d.id)
+                // let y = this.Yscale_(d3.timeDay(d.date_dic))
+                let y = this.Yscale_(d.id)
                 return `M${x} ${y} L${x + width} ${y} L${x + width} ${y + height} L${x} ${y + height} L${x} ${y}`
             })
+            .attr("inverterId",(d) => d.id)
             .attr("stroke", "none")
             .attr("fill", d => {
                 if (d.above === 1 && d.below === 0) {
@@ -527,7 +529,23 @@ class Analysis extends React.Component {
                 }
             })
             .on("click" , (event,d) => {
-                this.props.beforeMDSFetch(d)
+                // 与 散点图 联系
+                // this.props.beforeMDSFetch(d)
+                // console.log("test state",this,this.state,d,data)
+                const times = data[d.label].time[0].split("~")
+                // const firstNumber =  parseInt(times[0])  
+                const sendTimes = {
+                    first:times[0],
+                    end:times[1]
+                }
+                // 预处理
+                DeletTemp()
+                
+                d3.select("#compaleline").selectAll("g").remove()
+                console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data)
+                
+                // 
+                this.props.LineCompareChange(d.id,sendTimes,data[d.label].mae,data)
             })
     }
 
@@ -665,14 +683,14 @@ class Analysis extends React.Component {
             })
         }
 
-        // this.TimeDate = analysis_timeInfo
-        this.TimeDate = timeInfo
+        this.TimeDate = analysis_timeInfo
+        // this.TimeDate = timeInfo
 
         const xDomainx = new d3.InternSet(timeDay) // 对时间排序
         // 创建x、y轴比例尺
         const xScale = d3.scaleBand(xDomainx, [35, padding.width - padding.right]).padding(0.3)
-        const yScale = d3.scaleBand(d3.timeDays(...dateExtent_copy), [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
-        // const yScale = d3.scaleBand(inverterID, [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
+        // const yScale = d3.scaleBand(d3.timeDays(...dateExtent_copy), [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
+        const yScale = d3.scaleBand(inverterID, [6, padding.height - 18]).round(true) // .round(): 为true,表示启用取整操作。
         // const yScale = d3.scaleOrdinal(inverterID,[6, padding.height - 18]).round(true)
         this.Xscale_ = xScale
         this.Yscale_ = yScale
@@ -689,13 +707,14 @@ class Analysis extends React.Component {
         // 绘制背景矩阵图
         svg.select("#rectangle")
             .selectAll(".rect-angle")
-            .data(timeInfo) // 
+            // .data(timeInfo) 
+            .data(analysis_timeInfo)
             .join("rect")
             .attr("class", "rect-angle")
             .attr("x", d => xScale(d.time))
             .attr("y", d => {
-                return yScale(d3.timeDay(d.date_dic))
-                // return yScale(d.id)
+                // return yScale(d3.timeDay(d.date_dic))
+                return yScale(d.id)
             })
             .attr("width", xScale.bandwidth() + 2)
             .attr("height", yScale.bandwidth() - 2)
@@ -713,7 +732,7 @@ class Analysis extends React.Component {
                 console.log("analysis matrix",event,d,yScale(d3.timeDay(d.date_dic)))
 
                 // 添加 矩阵方块点击事件
-                this.props.beforeMDSFetch(d)
+                /* this.props.beforeMDSFetch(d)
                 
                 d3.select(".momentHighlightRectangle").remove()
                 svg.append("rect")
@@ -723,7 +742,7 @@ class Analysis extends React.Component {
                     .attr("width",xScale.bandwidth() + 2)
                     .attr("height",(yScale.bandwidth() - 2)*45)
                     .attr("fill","#7e96a6")
-                    .attr("opacity",0.8)
+                    .attr("opacity",0.8) */
             })
 
         // svg.select("#pathangle")

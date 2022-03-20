@@ -14,7 +14,7 @@ import Calendar from 'rc-calendar';
 import $ from 'jquery'
 // import Calendar from "./calendar/index"
 import Chart from "./calendar/chart";
-import { URL } from '../constant';
+import { URL ,thresholdPercentage} from '../constant';
 const calendar_data = require("./calendar/data.json")
 
 
@@ -198,6 +198,7 @@ class Control extends React.Component {
                 datatotal = datatotal.concat(totaldict[time])
             })
             datatotal = datatotal.sort((a, b) => { return a - b })
+            
             item.time.forEach((time) => {
                 let times = time.split("~")
                 for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
@@ -206,6 +207,7 @@ class Control extends React.Component {
                     }
                 }
             })
+            console.log("control",datatotal,decline,dataset)
             // 确定阈值mae
             if (datatotal - decline <= 0) { // 如果该类datatotal里没有数据
                 item["mae"] = 0
@@ -223,7 +225,7 @@ class Control extends React.Component {
                             sum += 1
                         }
                     }
-                    if (sum / (datatotal.length - decline) >= 0.01) { // 要使得大于 max 阈值的数据数在这个比例里面 >= 0.01 
+                    if (sum / (datatotal.length - decline) >= thresholdPercentage) { // 要使得大于 max 阈值的数据数在这个比例里面 >= 0.01 
                         advice = max
                         break
                     } else {
@@ -613,7 +615,7 @@ class Control extends React.Component {
                             sum += 1
                         }
                     }
-                    if (sum / (datatotal.length - decline) >= 0.01) { // 要使得大于 max 阈值的数据数在这个比例里面 >= 0.01 
+                    if (sum / (datatotal.length - decline) >= thresholdPercentage) { // 要使得大于 max 阈值的数据数在这个比例里面 >= 0.01 
                         advice = max
                         break
                     } else {
@@ -986,19 +988,19 @@ class Control extends React.Component {
                 });
 
             // 绘制颜色比例尺
-            let linear = d3.scaleLinear().domain([0, 10]).range([0, 1])
+            let linear = d3.scaleLinear().domain([0, 100]).range([0, 1])
             // let compute = d3.interpolate('red', 'blue')
             // computeGreen
 
             const myColorScale =  d3.select('.body')
                                     .append('g')
-                                    .attr("transform",`translate(${10},${10})`)
+                                    .attr("transform",`translate(${10},${0})`)
                                     // .attr("viewBox", [0, 0, 100, 100])
             
-            myColorScale.selectAll('.rect colorScale').data(d3.range(10)).enter()
+            myColorScale.selectAll('.rect colorScale').data(d3.range(100)).enter()
                         .append('rect')
                         .attr("class",'rect colorScale')
-                        .attr('y', (d,i) => i * 18)
+                        .attr('y', (d,i) => i * 1.8)
                         .attr('x', 0)
                         .attr('width', 15)
                         .attr('height', 18)

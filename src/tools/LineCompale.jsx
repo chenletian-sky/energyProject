@@ -46,7 +46,8 @@ class LineCompale extends React.Component {
 	}
 	xAxis = (g, x) => {
 		const padding = this.padding
-		g.attr("transform", `translate(0,${padding.height - padding.bottom})`).call(d3.axisBottom(x).tickSizeOuter(0))
+		g.attr("transform", `translate(0,${padding.height - padding.bottom})`)
+			.call(d3.axisBottom(x).tickSizeOuter(0))
 	}
 	yAxis = (g, y) => {
 		const padding = this.padding
@@ -1283,6 +1284,7 @@ class LineCompale extends React.Component {
 
 	componentDidMount() {
 		this.GeneralLine()
+		console.log("lineCompare state componentDidMount",1)
 	}
 	render() {
 		const data = this.data
