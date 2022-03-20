@@ -5,7 +5,8 @@ if __name__ == '__main__':
     dataset = {}
     # data\Plant_1_Generation_Data.csv
     # path1 = ['D:\能源论文(光伏)\系统\系统\power\data\Plant_1_Generation_Data.csv', 'Plant_2_Generation_Data.csv']
-    path1 = ['D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\energyProject\\data\\Plant_1_Generation_Data.csv', 'Plant_2_Generation_Data.csv']
+    # path1 = ['D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\energyProject\\data\\Plant_1_Generation_Data.csv', 'Plant_2_Generation_Data.csv']
+    path1 = ['./data/Plant_1_Generation_Data.csv', 'Plant_2_Generation_Data.csv']
     # path1 = ['Plant_1_Generation_Data.csv', 'Plant_2_Generation_Data.csv']
     path2 = ['Plant_1_Weather_Sensor_Data.csv', 'Plant_2_Weather_Sensor_Data.csv']
 

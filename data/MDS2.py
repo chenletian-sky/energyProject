@@ -82,5 +82,6 @@ def main():
     mds = MDS_D()
 if __name__ == "__main__":
     # fileName = "D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\含注释系统\\data\\dataLast.json"
-    fileName = "D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\energyProject\\data\\dataLast.json"
+    # fileName = "D:\\劳动人民智慧的结晶\\作业\\大二下\\vis能源\\energyProject\\data\\dataLast.json"
+    fileName = "./data/dataLast.json"
     main()
