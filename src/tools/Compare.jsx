@@ -1,5 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
+import textures from 'textures';
 import $ from 'jquery';
 import * as echarts from 'echarts'
 import 'echarts-liquidfill';
@@ -540,11 +541,11 @@ class Compare extends React.Component {
 
         const finalData =  modelConditionalScaleData.map((item,index) => {
             if(item.name === "irr"){
-                item = {...item,ave:irr_ave,select:irr_select,max:d3.max(irr_T)}
+                item = {...item,ave:irr_ave,select:irr_select,max:d3.max(irr_T),min:d3.min(irr_T)}
             }else if(item.name === "mt"){
-                item = {...item,ave:mt_ave,select:mt_select,max:d3.max(mt_T)}
+                item = {...item,ave:mt_ave,select:mt_select,max:d3.max(mt_T),min:d3.min(mt_T)}
             }else{
-                item = {...item,ave:at_ave,select:at_select,max:d3.max(at_T)}
+                item = {...item,ave:at_ave,select:at_select,max:d3.max(at_T),min:d3.min(at_T)}
             }
             return item
         })
@@ -555,6 +556,114 @@ class Compare extends React.Component {
         const arc = d3.arc()
                         .outerRadius(radius)
                         .innerRadius(0)
+        // 纹理
+        const texture = textures
+                        .lines()
+                        .thicker();
+        const myTextures = [
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("3/8")
+            // .heavier()
+            .stroke('rgb(255,236,139)'),
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("3/8")
+            // .heavier()
+            .stroke('rgb(50,205,50)'),
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("3/8")
+            // .heavier()
+            .stroke('rgb(255,127,0)'),
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("7/8")
+            // .heavier()
+            .stroke('rgb(255,236,139)'),
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("7/8")
+            // .heavier()
+            .stroke('rgb(50,205,50)'),
+            textures
+            .lines()
+            // .size(10)
+            .size(8)
+            .strokeWidth(2)
+            .orientation("7/8")
+            // .heavier()
+            .stroke('rgb(255,127,0)'),
+            // textures
+            //     .lines()
+            //     .orientation("vertical", "horizontal")
+            //     .size(4)
+            //     .strokeWidth(1)
+            //     .shapeRendering("crispEdges")
+            //     .stroke("rgb(255,236,139)"),
+            // textures
+            //     .lines()
+            //     .orientation("vertical", "horizontal")
+            //     .size(4)
+            //     .strokeWidth(1)
+            //     .shapeRendering("crispEdges")
+            //     .stroke("rgb(50,205,50)"),
+            // textures
+            //     .lines()
+            //     .orientation("vertical", "horizontal")
+            //     .size(4)
+            //     .strokeWidth(1)
+            //     .shapeRendering("crispEdges")
+            //     .stroke("rgb(255,127,0)"),
+            // textures
+            //     .paths()
+            //     .d("crosses")
+            //     .lighter()
+            //     .thicker()
+            //     .stroke("rgb(255,236,139)")
+            //     // .background("rgba(255,236,139,0.3)")
+            //     ,
+            // textures
+            //     .paths()
+            //     .d("crosses")
+            //     .lighter()
+            //     .thicker()
+            //     .stroke("rgb(50,205,50)"),
+            // textures
+            //     .paths()
+            //     .d("crosses")
+            //     .lighter()
+            //     .thicker()
+            //     .stroke("rgb(255,127,0)"),
+            // textures
+            // .lines()
+            // .orientation("3/8", "7/8")
+            // .stroke("darkorange")
+            ]
+        
+        
+        // const myArcScale = (max,pointValue) => {
+        //     const arcScale = d3.scaleLinear()
+        //                     .domain([0,max])
+        //                     .range([0,radius])
+        //     return d3.arc().outerRadius(arcScale(pointValue)).innerRadius(0)
+        // }
+        
         // 弧度文字构造器
         const labelArc = d3.arc()
                             .outerRadius(radius/1.5)
@@ -579,9 +688,11 @@ class Compare extends React.Component {
                     .attr("width",containerWidth)
                     .append("g")
                     .attr("transform", `translate(${containerWidth/2},${containerHeight/2})`)
+
+        myTextures.forEach((t) => d3.select(".template-sector-svg").call(t))
     
         var g = svg.selectAll(".arc")
-                    .data( pie(modelConditionalScaleData) )
+                    .data( pie(finalData) )
                     .enter()
                     .append("g")
                     .attr("class","arc")
@@ -590,6 +701,8 @@ class Compare extends React.Component {
             .attr("d",arc)
             .style("fill", (d) => {
                 const {name} = d.data
+                // return myTextures[0].url()
+                console.log("arc d",d)
                 if(name === "irr"){
                     return "rgb(255,236,139)"
                 }else if(name === "mt"){
@@ -598,25 +711,142 @@ class Compare extends React.Component {
                     return "rgb(255,127,0)"
                 }
             })
-            .attr("opacity",0.3 )
-        
+            .attr("opacity",0.4)
+            .attr("zIndex",-1)
+
+            
+            // 绘制 ave 扇形
             g.append("path")
-            .attr("d",arc)
+            .attr("d",d3.arc()
+                        .innerRadius(radius/8)
+                        .outerRadius( (d) => {
+                        console.log("d",d)
+                        return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) ) } )
+            )
+            .style("fill", (d) => {
+                const {name} = d.data
+                if(name === "irr"){
+                    // return "rgb(255,236,139)"
+                    return myTextures[0].url()
+                }else if(name === "mt"){
+                    // return "rgb(50,205,50)"
+                    return myTextures[1].url()
+                }else if(name === "at"){
+                    // return "rgb(255,127,0)"
+                    return myTextures[2].url()
+                }
+                // return "red"
+            })
+            .attr("opacity",(d) => {
+                console.log("opacity",d)
+                const {ave,select} = d.data 
+                return 0.8
+                if( ave > select){
+                    return 0.8
+                }else{
+                    return 0.5
+                }
+            })
+            // 绘制 ave 的边界
+            g.append("path")
+            .attr("d",d3.arc()
+                        .innerRadius((d) => (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) ))
+                        .outerRadius( (d) => {
+                        console.log("d",d)
+                        return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) )*1.02 } )
+            )
             .style("fill", (d) => {
                 const {name} = d.data
                 if(name === "irr"){
                     return "rgb(255,236,139)"
+                    // return myTextures[0].url()
                 }else if(name === "mt"){
                     return "rgb(50,205,50)"
+                    // return myTextures[1].url()
                 }else if(name === "at"){
                     return "rgb(255,127,0)"
+                    // return myTextures[2].url()
+                }
+                // return "red"
+            })
+            .attr("opacity",(d) => {
+                console.log("opacity",d)
+                const {ave,select} = d.data 
+                return 1
+                if( ave > select){
+                    return 0.8
+                }else{
+                    return 0.5
                 }
             })
-            .attr("opacity",0.3 )
+
+            // 绘制 选中扇形
+            g.append("path")
+            .attr("d",d3.arc()
+                        .innerRadius(radius/8)
+                        .outerRadius( (d) => {
+                        console.log("d",d)
+                        return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) ) } )
+            )
+            .style("fill", (d) => {
+                const {name} = d.data
+                if(name === "irr"){
+                    // return "rgb(255,236,139)"
+                    return myTextures[3].url()
+                }else if(name === "mt"){
+                    // return "rgb(50,205,50)"
+                    return myTextures[4].url()
+                }else if(name === "at"){
+                    // return "rgb(255,127,0)"
+                    return myTextures[5].url()
+                }
+                return "red"
+            })
+            .attr("opacity",(d) => {
+                const {ave,select} = d.data 
+                return 0.8
+                if( ave > select){
+                    return 0.8
+                }else{
+                    return 0.5
+                }
+            } )
             // .transition()
             // .ease(d3.easeLinear)
             // .duration(2000)
             // .attrTween("d",pieTween)
+
+            // 绘制 选中扇形 的边框
+            g.append("path")
+            .attr("d",d3.arc()
+                        .innerRadius((d) => (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) ))
+                        .outerRadius( (d) => {
+                        console.log("d",d)
+                        return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) )*1.02 } )
+            )
+            .style("fill", (d) => {
+                const {name} = d.data
+                if(name === "irr"){
+                    return "rgb(255,236,139)"
+                    // return myTextures[3].url()
+                }else if(name === "mt"){
+                    return "rgb(50,205,50)"
+                    // return myTextures[4].url()
+                }else if(name === "at"){
+                    return "rgb(255,127,0)"
+                    // return myTextures[5].url()
+                }
+                // return "red"
+            })
+            .attr("opacity",(d) => {
+                const {ave,select} = d.data 
+                return 1
+                if( ave > select){
+                    return 0.8
+                }else{
+                    return 0.5
+                }
+            } )
             
         // g.append('text')
         //     .transition()
