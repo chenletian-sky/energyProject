@@ -542,7 +542,7 @@ class Analysis extends React.Component {
                 DeletTemp()
                 
                 d3.select("#compaleline").selectAll("g").remove()
-                console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data)
+                // console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data)
                 
                 // 
                 this.props.LineCompareChange(d.id,sendTimes,data[d.label].mae,data)
@@ -729,7 +729,7 @@ class Analysis extends React.Component {
                 return time
             })
             .on("click",(event,d) => {
-                console.log("analysis matrix",event,d,yScale(d3.timeDay(d.date_dic)))
+                // console.log("analysis matrix",event,d,yScale(d3.timeDay(d.date_dic)))
 
                 // 添加 矩阵方块点击事件
                 /* this.props.beforeMDSFetch(d)

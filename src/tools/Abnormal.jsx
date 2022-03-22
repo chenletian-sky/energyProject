@@ -336,7 +336,7 @@ class Abnormal extends React.Component {
                 <div style={{ ...this.theme.title }}>
                     <button id="filterb" onClick={() => {
                         this.props.FilterRender(this.newDis)
-                        console.log(this.newDis)
+                        // console.log(this.newDis)
                     }}>Filter</button>
                 </div>
                 <svg style={{ width: this.theme.width, height: this.theme.height - 20 }} id="distribute"></svg>

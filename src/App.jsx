@@ -131,6 +131,10 @@ class App extends React.Component {
 		this.myLineCompale.current.datafilter = distance
 		this.myLineCompale.current.FilterLineRender()
 	}
+	/**
+	 * @method
+	 * 绘制select avg 柱形图
+	 */
 	AveCompare = (irr_T, at_T, mt_T, MAE, Value, Pre) => {
 		this.myCompare.current.irr_T = irr_T
 		this.myCompare.current.at_T = at_T
@@ -138,8 +142,17 @@ class App extends React.Component {
 		this.myCompare.current.smae = MAE
 		this.myCompare.current.value = Value
 		this.myCompare.current.pre = Pre
-		this.myCompare.current.AverageShow()
+		// this.myCompare.current.AverageShow()
 	}
+
+	/**
+	 * @method
+	 * 绘制多层次扇形图
+	 */
+	MultiSectorRender = (irr_T, at_T, mt_T) => {
+		this.myCompare.current.multilayerSectorChartShow(irr_T, at_T, mt_T)
+	}
+
 	KmeansR = (label,currentDate) => {
 		// 初始化中上矩阵图的信息
 		this.myAnalysis.current.matirxRender(label,currentDate)
@@ -199,10 +212,12 @@ class App extends React.Component {
 		})
 	}
 
-	// flag 渲染 环形图用
+	/**
+	 * @method
+	 * flag 渲染 环形图用
+	*/ 
 	flagRenderPie = (piePathes) => {
 		// this.myFlag.current
-		console.log("flagRenderPie piePathes",piePathes)
 		this.myFlag.current.PieRender(piePathes)
 	}
 
@@ -319,6 +334,7 @@ class App extends React.Component {
 						SimilarSelect={this.SimilarSelect}
 						AveCompare={this.AveCompare}
 						flagRenderPie={this.flagRenderPie}	
+						MultiSectorRender={this.MultiSectorRender}
 					>
 					</LineCompale>
 					<Abnormal

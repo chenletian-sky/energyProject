@@ -207,7 +207,7 @@ class Control extends React.Component {
                     }
                 }
             })
-            console.log("control",datatotal,decline,dataset)
+            // console.log("control",datatotal,decline,dataset)
             // 确定阈值mae
             if (datatotal - decline <= 0) { // 如果该类datatotal里没有数据
                 item["mae"] = 0
@@ -1745,7 +1745,7 @@ class Control extends React.Component {
                                 }
                             }).then(responer => {
                                 //  
-                                console.log("control mds2\n",this.state.hour1*4+this.state.minute1/15,parseInt(this.state.month) + 1,this.state.Selectday)
+                                // console.log("control mds2\n",this.state.hour1*4+this.state.minute1/15,parseInt(this.state.month) + 1,this.state.Selectday)
                                 // test
                                 this.setState({ scatterLoading: false })
                                 this.props.MDSFetch(responer.data, inputValue2, this.state.Selectday, parseInt(this.state.month) + 1)

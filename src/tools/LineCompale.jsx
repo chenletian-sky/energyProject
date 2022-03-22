@@ -358,13 +358,13 @@ class LineCompale extends React.Component {
 							irr_T.push(irr)
 							at_T.push(at)
 							mt_T.push(mt)
-							console.log("select pie",irr,at,mt,this.RectCircle[i])
+							// console.log("select pie",irr,at,mt,this.RectCircle[i])
 						}
 					}
 
-					console.log(this.RectCircle)
-					console.log(this.SimilarCircle)
-					console.log(Num)
+					// console.log(this.RectCircle)
+					// console.log(this.SimilarCircle)
+					// console.log(Num)
 
 					for (let i = 0; i < this.SimilarCircle.length; i++) {
 						Numbers.push(parseInt(this.SimilarCircle[i][Num].getAttribute("num")))
@@ -410,7 +410,10 @@ class LineCompale extends React.Component {
 							sendInfo[key] = arcs
 						})
 					}
+					// 
+					// console.log("sendInfo flagRenderPie",sendInfo)
 					this.props.flagRenderPie(sendInfo)
+
 					let abs = 0
 					for (let key in this.CompareClickPie) {
 						if (abs >= Numbers.length) {
@@ -437,8 +440,12 @@ class LineCompale extends React.Component {
 							abs += 1
 						}
 					}
-					console.log("test aveCompare irr_T, at_T, mt_T, MAE, Value, Pre",irr_T, at_T, mt_T, MAE, Value, Pre)
-					this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
+					
+					// console.log("test aveCompare irr_T, at_T, mt_T, MAE, Value, Pre",irr_T, at_T, mt_T, MAE, Value, Pre,sendInfo)
+					// TODO:add multisector params
+					// this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
+					// test
+					this.props.MultiSectorRender(irr_T, at_T, mt_T)
 				}
 			})
 
@@ -1284,7 +1291,7 @@ class LineCompale extends React.Component {
 
 	componentDidMount() {
 		this.GeneralLine()
-		console.log("lineCompare state componentDidMount",1)
+		// console.log("lineCompare state componentDidMount",1)
 	}
 	render() {
 		const data = this.data

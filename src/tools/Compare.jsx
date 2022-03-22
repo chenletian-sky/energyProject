@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import $ from 'jquery';
 import * as echarts from 'echarts'
 import 'echarts-liquidfill';
+import {modelConditionalScaleData} from '../constant/index'
+
 class Compare extends React.Component {
     theme
     data
@@ -76,10 +78,11 @@ class Compare extends React.Component {
         const xScale = d3.scaleBand(xDomain, pos).padding(0.3)
         return xScale
     }
+    // 水印制造
     WaterRender = () => {
         const chart = echarts.init(document.getElementById('liquidfills'), 'wonderland', { renderer: 'svg' })
         let color = null
-        console.log(this.value, this.pre);
+        // console.log(this.value, this.pre);
         if (this.smae > this.MAE) {
             if (this.value - this.pre >= 0) {
                 color = "rgba(101,169,211,0.5)"
@@ -137,8 +140,12 @@ class Compare extends React.Component {
             }]
         };
         chart.setOption(option);
-        console.log(this.smae);
+        // console.log(this.smae);
     }
+    /**
+     * @method
+     * 给select avg 绘制背景
+     */
     RectShow = (data, yScale, color, name) => {
         const ave = d3.sum(data) / data.length
         const se = data[0]
@@ -170,10 +177,12 @@ class Compare extends React.Component {
     }
     AverageShow = () => {
         d3.select("#ploat").selectAll(".two").remove()
+        
         const irr_Y = this.yScaleB([30, 60])
         const at_Y = this.yScaleB([115, 145])
         const mt_Y = this.yScaleB([75, 105])
         const svg = d3.select("#ploat")
+        
         svg.append("g")
             .attr("class", "two")
             .call(this.yAxis, irr_Y)
@@ -186,8 +195,8 @@ class Compare extends React.Component {
         this.RectShow(this.irr_T, irr_Y, "rgba(255,236,139,0.5)", "irradiation")
         this.RectShow(this.mt_T, mt_Y, "rgba(50,205,50,0.5)", "module_temperature")
         this.RectShow(this.at_T, at_Y, "rgba(255,127,0,0.5)", "ambient_temperature")
-
     }
+
     scaleLine = () => {
         d3.select("#ploat").selectAll("g").remove()
         const timeMae = {}
@@ -232,7 +241,14 @@ class Compare extends React.Component {
         const width = padding.width / 4
         let ScaleYRange = []
         let ScaleXRange = []
+        /**
+         * @member
+         * 矩形图 4*4 Group
+         */
         const svg = d3.select("#ploat")
+                        .append("g")
+                        .attr("class","allg")
+                        .attr("transform",`translate(${0},${-100})`)
 
         const gs = svg.selectAll(".gs")
             .data(dataName)
@@ -433,6 +449,7 @@ class Compare extends React.Component {
         })
     }
     ImportShow = () => {
+        // 各种 条件的重要程度
         const data = [
             { "name": "irradiation", "import": 1.144 },
             { "name": "moduleT", "import": 0.812 },
@@ -487,10 +504,151 @@ class Compare extends React.Component {
             .attr("fill", "white")
 
     }
+    
+    /**
+     * @method
+     * 绘制多层次扇形图
+     * 用于展示 irradiation moduleT ambientT  根据重要程度
+     * 绘制 select 和 avg 数据的比较
+     */
+    multilayerSectorChartShow = (irr_T, at_T, mt_T) => {
+        // const containerHeight = document.getElementsByClassName("myChange-sector").clientHeight
+        // const containerWidth = document.getElementsByClassName("myChange-sector").clientWidth
+
+        const containerHeight = 200
+        const containerWidth = 380
+        const margin = {
+            top: 20,
+            left:20,
+            bottom:20,
+            right:20
+        }
+        const height = containerHeight - margin.top - margin.bottom
+        const width = containerWidth - margin.left - margin.right
+        const radius = d3.min([height,width])/2
+        // TODO: 绘制 重量占比图
+        // console.log("container",containerHeight,containerWidth,radius)
+        
+        const irr_ave = d3.sum(irr_T)/irr_T.length
+        const irr_select = irr_T[0]
+
+        const at_ave = d3.sum(at_T)/at_T.length
+        const at_select = at_T[0]
+
+        const mt_ave = d3.sum(mt_T)/mt_T.length
+        const mt_select = mt_T[0]
+
+        const finalData =  modelConditionalScaleData.map((item,index) => {
+            if(item.name === "irr"){
+                item = {...item,ave:irr_ave,select:irr_select,max:d3.max(irr_T)}
+            }else if(item.name === "mt"){
+                item = {...item,ave:mt_ave,select:mt_select,max:d3.max(mt_T)}
+            }else{
+                item = {...item,ave:at_ave,select:at_select,max:d3.max(at_T)}
+            }
+            return item
+        })
+        console.log("finalData",finalData,modelConditionalScaleData)
+        // modelConditionalScaleData
+        console.log("irr_ave irr_select at_ave at_select mt_ave mt_select",irr_ave,irr_select,at_ave,at_select,mt_ave,mt_select)
+
+        const arc = d3.arc()
+                        .outerRadius(radius)
+                        .innerRadius(0)
+        // 弧度文字构造器
+        const labelArc = d3.arc()
+                            .outerRadius(radius/1.5)
+                            .innerRadius(radius/1.5)
+
+        const pie = d3.pie()
+                        .sort(null)
+                        .value((d) => {
+                            return d.value
+                        })
+
+        // const ave_pie = d3.pie()
+        //                     .sort(null)
+        //                     .value((d) => {
+        //                         return 
+        //                     })
+        d3.select(".template-sector-svg").remove()
+        var svg = d3.select("div.myChange-sector")
+                    .append("svg")
+                    .attr("class","template-sector-svg")
+                    .attr("height",containerHeight)
+                    .attr("width",containerWidth)
+                    .append("g")
+                    .attr("transform", `translate(${containerWidth/2},${containerHeight/2})`)
+    
+        var g = svg.selectAll(".arc")
+                    .data( pie(modelConditionalScaleData) )
+                    .enter()
+                    .append("g")
+                    .attr("class","arc")
+        
+        g.append("path")
+            .attr("d",arc)
+            .style("fill", (d) => {
+                const {name} = d.data
+                if(name === "irr"){
+                    return "rgb(255,236,139)"
+                }else if(name === "mt"){
+                    return "rgb(50,205,50)"
+                }else if(name === "at"){
+                    return "rgb(255,127,0)"
+                }
+            })
+            .attr("opacity",0.3 )
+        
+            g.append("path")
+            .attr("d",arc)
+            .style("fill", (d) => {
+                const {name} = d.data
+                if(name === "irr"){
+                    return "rgb(255,236,139)"
+                }else if(name === "mt"){
+                    return "rgb(50,205,50)"
+                }else if(name === "at"){
+                    return "rgb(255,127,0)"
+                }
+            })
+            .attr("opacity",0.3 )
+            // .transition()
+            // .ease(d3.easeLinear)
+            // .duration(2000)
+            // .attrTween("d",pieTween)
+            
+        // g.append('text')
+        //     .transition()
+        //     .ease(d3.easeLinear)
+        //     .duration(2000)
+        //     .attr("transform",(d) => {
+        //         return `translate(${ labelArc.centroid(d) })`
+        //     })
+        //     .attr("dy",".35em")
+        //     .text((d) => {
+        //         console.log(d)
+        //         return d.data["name"].substring(0,3)
+        //     })
+
+        function pieTween(b) {
+            b.innerRadius = 0
+            var i = d3.interpolate({startAngle:0,endAngle:0},b)
+            return function(t){ return arc(i(t))}
+        }
+            
+
+        
+    }
+
+
     render() {
         return (
             <div className='Compare' style={{ position: 'absolute', ...this.theme }}>
-                <div style={{ width: this.theme.width, height: 100 }}>
+                <div style={{ width: this.theme.width, height: 200 }} className="myChange-sector">
+
+                </div>
+                {/* <div style={{ width: this.theme.width, height: 100 }}>
                     <svg style={{ width: this.theme.width, height: 100 }} id="import">
                         <g id="imrect"></g>
                         <g id="tagrect"></g>
@@ -498,8 +656,8 @@ class Compare extends React.Component {
                         <g id="tag"></g>
                         <line x1={0} x2={this.theme.width - 2} y1={99} y2={99} stroke={"rgb(180,180,180)"} strokeDasharray="3 2"></line>
                     </svg>
-                </div>
-                <svg style={{ width: this.theme.width, height: this.theme.height - 100 }} id="ploat">
+                </div> */}
+                <svg style={{ width: this.theme.width, height: this.theme.height - 200}}  id="ploat">
                     <g className="gs"></g>
                 </svg>
                 {/* <div style={{ width: 70, height: 70, position: "absolute", top: 240, left: 20, background: "white" }} id="liquidfills">

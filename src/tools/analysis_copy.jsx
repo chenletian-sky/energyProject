@@ -168,11 +168,11 @@ class Analysis extends React.Component {
     }
     componentDidMount() {
         const input1 = document.getElementsByClassName("ant-input-number-input")
-        console.log(input1);
+        // console.log(input1);
         input1[0].style.height = "20px"
     }
     render() {
-        console.log(this.data)
+        // console.log(this.data)
         const { inputValue } = this.state
         let tags = []
         for (let key in this.color) {

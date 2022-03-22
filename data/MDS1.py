@@ -58,8 +58,8 @@ class MDS_D:
                         actual = math.log(item['dc_power'])
                     else:
                         actual = math.log(abs(item['dc_power']))
-                    # if item['hour']>=time[0] and item['hour']<time[1] and abs(test-actual)>math.log(self.mae[index]):
-                    if item['hour'] >= time[0] and item['hour'] < time[1] and math.log(abs(item['testPre'] - item['dc_power']), self.mae[t]) > 1.1664:
+                    if item['hour']>=time[0] and item['hour']<time[1] and abs(test-actual)>math.log(self.mae[t]):
+                    # if item['hour'] >= time[0] and item['hour'] < time[1] and math.log(abs(item['testPre'] - item['dc_power']), self.mae[t]) > 1.1664:
                         # node.append([item['irradiation'],item['ambient_temperature'],item['module_temperature'],item['dc_power']])
                         # if item['loss_mae']>self.mae:
                         #     abnornal+=1

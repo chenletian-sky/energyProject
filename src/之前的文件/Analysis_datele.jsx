@@ -629,7 +629,7 @@ class Analysis extends React.Component {
 
     // 改变矩阵视图的时间
     changeTime = (timeDate) => {
-        console.log(timeDate)
+        // console.log(timeDate)
     }
     render() {
         const padding = this.padding

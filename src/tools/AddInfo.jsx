@@ -75,8 +75,8 @@ class AddInfo extends React.Component {
         }
 
         // test
-        // console.log(abDict);
-        // console.log(maedict);
+        // console.log("@",abDict);
+        // console.log("@@",maedict);
 
         for (let key in abDict) {
             number.push(abDict[key])
@@ -116,14 +116,16 @@ class AddInfo extends React.Component {
                 circle[i].setAttribute("fill", colorLabel[label])
             }
             if (abnum > 0 && abnum < 10) {
-                circle[i].setAttribute("r", scale(abnum) + "px")
+                // circle[i].setAttribute("r", scale(abnum) + "px")
+                circle[i].setAttribute("r","2px")
                 if (isNaN(label) === true) {
                     circle[i].setAttribute("fill", "rgb(252,146,115)")
                 } else {
                     circle[i].setAttribute("fill", colorLabel[label])
                 }
             } else if (abnum >= 10) {
-                circle[i].setAttribute("r", 10 + "px")
+                // circle[i].setAttribute("r", 10 + "px")
+                circle[i].setAttribute("r","2px")
                 circle[i].setAttribute("fill", "red")
             }
             else {
@@ -230,7 +232,7 @@ class AddInfo extends React.Component {
                 // this.mae
 
                 // test console
-                console.log('addInfo test lineCompareChange',name,times,maes,this.mae)
+                // console.log('addInfo test lineCompareChange',name,times,maes,this.mae)
 
                 // 核心LineCompareChange 
                 // 交互传参 当前逆变器的id 时间段(聚类的时间段 eg:["13~16"]) 当前类别的设定阈值(mae) 当前聚类，步长 以及阈值的总数据
