@@ -247,7 +247,7 @@ class Control extends React.Component {
             item["range"] = d3.extent(dataset) // 范围为所有数据的最大值和最小值
             // item["mae"] = parseInt(d3.extent(dataset)[1]) + 1
         })
-        // this.ListData = data
+        this.ListData = data
         this.props.MAEChange(data) // 散点图部分
 
         
@@ -390,8 +390,9 @@ class Control extends React.Component {
                     this.props.ColorC(data) // 修改矩阵视图的异常显示情况
                     
                     this.props.MAEChange(data)
-                    // this.ListData = data
-                    // this.StatisticsRender()
+
+                    this.ListData = data
+                    this.StatisticsRender()
                     circleD.filter(p => p === d).attr("stroke", "rgb(145,213,255)")
                 })
             )
@@ -447,73 +448,77 @@ class Control extends React.Component {
             .attr("font-size", "9px")
             .attr("fill", "rgb(140,140,140)")
     }
-    // StatisticsRender(): 用于更新ID框
-    // StatisticsRender = () => {
-    //     const dataT = this.props.dataT
-    //     const dataMae = this.ListData
-    //     const datalast = []
-    //     console.log(dataMae);
-    //     let num = 0
-    //     for (let key in dataT) {
-    //         let dataset_avg = []
-    //         let dataset_abnor = []
-    //         dataMae.forEach((label) => {
-    //             let timeList = []
-    //             let mae = label.mae
-    //             let dc_power = []
-    //             let abnormal = 0
-    //             label.time.forEach((t) => {
-    //                 let times = t.split("~")
-    //                 for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
-    //                     timeList.push(i)
-    //                 }
-    //             })
-    //             dataT[key].forEach((item) => {
-    //                 if (timeList.indexOf(item.hour) > -1) {
-    //                     if (item.loss_mae > mae) {
-    //                         abnormal += 1
-    //                     }
-    //                     dc_power.push(item.dc_power)
-    //                 }
-    //             })
-    //             let dc_avg = d3.sum(dc_power) / dc_power.length
-    //             dataset_avg.push(dc_avg)
-    //             dataset_abnor.push(abnormal)
-    //         })
-    //         datalast.push({ "name": num, "dc_avg": dataset_avg, "abnomal": dataset_abnor })
-    //         num += 1
-    //     }
-    //     const update = datalast.map((item, index) => {
-    //         let LabelString = `${100 / item.abnomal.length}%`
-    //         for (let i = 0; i < item.abnomal.length; i++) {
-    //             if (i !== 0) {
-    //                 LabelString += " " + 100 / item.abnomal.length + "%"
-    //             }
-    //         }
-    //         const dc_avg = item.dc_avg.map((d, i) => {
-    //             return (
-    //                 <div key={"dc" + i + index}>{parseInt(d)}</div>
-    //             )
-    //         })
-    //         const abnor = item.abnomal.map((d, i) => {
-    //             return (
-    //                 <div key={"ab" + i + index}>{parseInt(d)}</div>
-    //             )
-    //         })
-    //         return (
-    //             <div key={"Statistics" + index} style={{ width: this.theme.width - 2, height: (142.5 / 8) }} className='grid-sta'>
-    //                 <div>{item.name}</div>
-    //                 <div style={{ display: "grid", gridTemplateRows: "100%", gridTemplateColumns: LabelString }}>
-    //                     {dc_avg}
-    //                 </div>
-    //                 <div style={{ display: "grid", gridTemplateRows: "100%", gridTemplateColumns: LabelString }}>
-    //                     {abnor}
-    //                 </div>
-    //             </div>
-    //         )
-    //     })
-    //     this.setState({ Statistics: update })
-    // }
+    
+    /**
+     * @method
+     * StatisticsRender(): 用于更新ID框
+     */
+    StatisticsRender = () => {
+        const dataT = this.props.dataT
+        const dataMae = this.ListData
+        const datalast = []
+        console.log(dataMae);
+        let num = 1
+        for (let key in dataT) {
+            let dataset_avg = []
+            let dataset_abnor = []
+            dataMae.forEach((label) => {
+                let timeList = []
+                let mae = label.mae
+                let dc_power = []
+                let abnormal = 0
+                label.time.forEach((t) => {
+                    let times = t.split("~")
+                    for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
+                        timeList.push(i)
+                    }
+                })
+                dataT[key].forEach((item) => {
+                    if (timeList.indexOf(item.hour) > -1) {
+                        if (item.loss_mae > mae) {
+                            abnormal += 1
+                        }
+                        dc_power.push(item.dc_power)
+                    }
+                })
+                let dc_avg = d3.sum(dc_power) / dc_power.length
+                dataset_avg.push(dc_avg)
+                dataset_abnor.push(abnormal)
+            })
+            datalast.push({ "name": num, "dc_avg": dataset_avg, "abnomal": dataset_abnor })
+            num += 1
+        }
+        const update = datalast.map((item, index) => {
+            let LabelString = `${100 / item.abnomal.length}%`
+            for (let i = 0; i < item.abnomal.length; i++) {
+                if (i !== 0) {
+                    LabelString += " " + 100 / item.abnomal.length + "%"
+                }
+            }
+            const dc_avg = item.dc_avg.map((d, i) => {
+                return (
+                    <div key={"dc" + i + index}>{parseInt(d)}</div>
+                )
+            })
+            const abnor = item.abnomal.map((d, i) => {
+                return (
+                    <div key={"ab" + i + index}>{parseInt(d)}</div>
+                )
+            })
+            return (
+                <div key={"Statistics" + index} style={{ width: this.theme.width - 2, height: (142.5 / 8) }} className='grid-sta'>
+                    <div>{item.name}</div>
+                    <div style={{ display: "grid", gridTemplateRows: "100%", gridTemplateColumns: LabelString }}>
+                        {dc_avg}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateRows: "100%", gridTemplateColumns: LabelString }}>
+                        {abnor}
+                    </div>
+                </div>
+            )
+        })
+        this.setState({ Statistics: update })
+    }
 
     // 绘制日历图
     calendarRender(){
@@ -585,10 +590,14 @@ class Control extends React.Component {
             let datatotal = []
             let decline = 0 
             item.time.forEach(time => {
+                // 取得该时间段的 极值
                 dataset = dataset.concat(timedict[time]) // .concat(): 链接两个数组，返回连接后的数组
+                // 取得该时间段的所有 lose_mae
                 datatotal = datatotal.concat(totaldict[time])
             })
+            // 所有lose_mae 从大到小排列
             datatotal = datatotal.sort((a, b) => { return a - b })
+            // 根据此类的时间段 得到所有无效逆变器的lose_mae的数值
             item.time.forEach((time) => {
                 let times = time.split("~")
                 for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
@@ -1257,11 +1266,11 @@ class Control extends React.Component {
                 LabelString += " " + 100 / inputValue + "%"
             }
         }
-        // const divLabel = NameLabel.map((item, index) => {
-        //     return (
-        //         <div key={"grid-div" + index} style={{ background: colorLabel[index], borderRight: index === 3 ? "0px" : "1px solid rgb(180,180,180)" }}></div>
-        //     )
-        // })
+        const divLabel = NameLabel.map((item, index) => {
+            return (
+                <div key={"grid-div" + index} style={{ background: colorLabel[index], borderRight: index === 3 ? "0px" : "1px solid rgb(180,180,180)" }}></div>
+            )
+        })
         const daydict = {
             "4": [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
             "5": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
@@ -1479,7 +1488,7 @@ class Control extends React.Component {
                                         this.calendarRender()
                                         
 
-                                        // this.StatisticsRender()//统计信息
+                                        this.StatisticsRender()//统计信息
                                         this.setState({ disabled: false })
                                         Lo.style.display = "none"
                                     })
@@ -1491,9 +1500,9 @@ class Control extends React.Component {
                 {/* <Divider style={{ margin: "8px 0" }} /> */}
 
                 {/* 原ID部分 */}
-                {/* <div style={{ width: this.theme.width - 2, height: "190px" }} id="grid"> */}
+                <div style={{ width: this.theme.width - 2, height: "190px" ,position:"absolute",top:"509px"}} id="grid">
                     {/* 表格头部分 */}
-                    {/* <div id="grid-one">
+                    <div id="grid-one">
                         <div style={{ textAlign: "center", borderTop: "1px solid rgb(180,180,180)", borderBottom: "1px solid rgb(180,180,180)", lineHeight: "200%" }}>
                             ID
                         </div>
@@ -1509,14 +1518,14 @@ class Control extends React.Component {
                                 {divLabel}
                             </div>
                         </div>
-                    </div> */}
+                    </div>
                     {/* 表格数据部分 */}
-                    {/* <div id="grid-two" style={{ overflow: "auto", borderBottom: "1px solid rgb(180,180,180)" }}>
+                    <div id="grid-two" style={{ overflow: "auto", borderBottom: "1px solid rgb(180,180,180)" ,height:"203px"}}>
                         <div style={{ width: this.theme.width - 2, height: (142.5 / 8) * Pname.length }}>
                             {Statistics}
                         </div>
                     </div>
-                </div> */}
+                </div>
 
 
                 {/* 悬浮框(不知是否有用) */}

@@ -9,3 +9,5 @@ export const  modelConditionalScaleData = [
   { "name": "mt", "value": 0.812 },
   { "name": "at", "value": 0.246 }
 ]
+
+export const Compare_scaleLine_svg_zoom = 1.2

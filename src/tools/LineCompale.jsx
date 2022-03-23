@@ -412,7 +412,8 @@ class LineCompale extends React.Component {
 					}
 					// 
 					// console.log("sendInfo flagRenderPie",sendInfo)
-					this.props.flagRenderPie(sendInfo)
+					// 绘制 环形图的 放大版
+					// this.props.flagRenderPie(sendInfo)
 
 					let abs = 0
 					for (let key in this.CompareClickPie) {
@@ -442,7 +443,7 @@ class LineCompale extends React.Component {
 					}
 					
 					// console.log("test aveCompare irr_T, at_T, mt_T, MAE, Value, Pre",irr_T, at_T, mt_T, MAE, Value, Pre,sendInfo)
-					// TODO:add multisector params
+					
 					// this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
 					// test
 					this.props.MultiSectorRender(irr_T, at_T, mt_T)

@@ -6,6 +6,8 @@ import * as echarts from 'echarts'
 import 'echarts-liquidfill';
 import {modelConditionalScaleData} from '../constant/index'
 
+const Compare_scaleLine_svg_zoom = 1.25
+
 class Compare extends React.Component {
     theme
     data
@@ -19,11 +21,24 @@ class Compare extends React.Component {
             left: 20,
             right: 50,
             bottom: -7,
+            /**
+             * @var
+             * 微调 
+             */
             split: 3,
-            split_width: 3,
-            height: this.theme.height - 120,
-            width: 280
+            /**
+             * @var
+             * temporary useless
+             */
+            split_width: 3, 
+            height: (this.theme.height - 120)*Compare_scaleLine_svg_zoom*0.8,
+            width: (280)*Compare_scaleLine_svg_zoom // 280
         }
+        /**
+         * @var
+         * up -> down
+         * yAxis label
+         */
         this.name = ["module_temperature", "ambient_temperature", "irradiation", "dc_power"]
         // this.nameU = ["dc_power", "irradiation", "ambient_temperature", "module_temperature"]
         this.sourceKey = null
@@ -173,9 +188,13 @@ class Compare extends React.Component {
             .attr("height", "8px")
             .attr("width", d => xScale(d.value))
             .attr("fill", color)
-        // this.WaterRender()
-
+        
+            // this.WaterRender()
     }
+    /**
+     * @method
+     * 绘制 select ave 柱形
+     */
     AverageShow = () => {
         d3.select("#ploat").selectAll(".two").remove()
         
@@ -201,6 +220,7 @@ class Compare extends React.Component {
     scaleLine = () => {
         d3.select("#ploat").selectAll("g").remove()
         const timeMae = {}
+
         this.maeList.forEach((item) => {
             item.time.forEach((t) => {
                 let times = t.split("~")
@@ -222,14 +242,28 @@ class Compare extends React.Component {
         data = dataOne
         const padding = this.padding
         const name = this.name
+        /**
+         * @var
+         * x axis data
+         * left -> right
+         */
         const dataName = []
         const dataNameU = []
+        /**
+         * @var
+         * y axis data
+         * up -> down
+         */
         const dataNameT = []
+        // padding.split = 3
         for (let i = padding.split; i >= 0; i--) {
-            dataName.push(name.slice(i))
+            // 
+            // dataName.push(name.slice(i))
+            dataName.push(name)
         }
         dataName.forEach((item) => {
-            dataNameU.push(this.name.slice(0, item.length))
+            // dataNameU.push(this.name.slice(0, item.length))
+            dataNameU.push(this.name)
         })
         dataNameU.forEach((item) => {
             let nam = []
@@ -248,17 +282,27 @@ class Compare extends React.Component {
          */
         const svg = d3.select("#ploat")
                         .append("g")
-                        .attr("class","allg")
-                        .attr("transform",`translate(${0},${-100})`)
+                        .attr("class","all-g")
+                        .attr("transform",`translate(${26},${-80})`)
+                        // .attr("zoom",2)
+        
+        console.log("dataName",dataName)
+        console.log("dataNameT",dataNameT)
 
         const gs = svg.selectAll(".gs")
             .data(dataName)
             .join("g")
             .attr("class", "gs")
             .attr("transform", (d, i) => {
-                ScaleYRange.push([padding.height - padding.bottom - (width) * (dataName.length - i), padding.height - padding.bottom - (width) * (dataName.length - i) + width])
-                return `translate(${this.theme.width - padding.right - ((width) * (i + 1)) + padding.split},${padding.height - padding.bottom - (width) * (dataName.length - i)})`
+                // i = i % 4
+                ScaleYRange.push([padding.height - padding.bottom - (width) * (dataName.length - i), 
+                                    padding.height - padding.bottom - (width) * (dataName.length - i) + width])
+                console.log("transform i",i,d)
+                // return `translate( ${this.theme.width - padding.right - ((width) * (i + 1)) + padding.split},
+                return `translate( ${this.theme.width - padding.right - ((width) * (3 + 1)) + padding.split},
+                                    ${padding.height - padding.bottom - (width) * (dataName.length - i)} )`
             })
+
         gs.selectAll(".rects")
             .data(d => d)
             .join("rect")
@@ -273,11 +317,18 @@ class Compare extends React.Component {
             .attr("fill", "rgb(234,234,242)")
         // .attr("stroke", "white")
         let ScaleXRange_C = []
-        ScaleXRange_C.push([ScaleXRange[0]])
-        ScaleXRange_C.push([ScaleXRange[1], ScaleXRange[2]])
-        ScaleXRange_C.push([ScaleXRange[3], ScaleXRange[4], ScaleXRange[5]])
-        ScaleXRange_C.push([ScaleXRange[6], ScaleXRange[7], ScaleXRange[8], ScaleXRange[9]])
+        // ScaleXRange_C.push([ScaleXRange[0]])
+        // ScaleXRange_C.push([ScaleXRange[1], ScaleXRange[2]])
+        // ScaleXRange_C.push([ScaleXRange[3], ScaleXRange[4], ScaleXRange[5]])
+        // ScaleXRange_C.push([ScaleXRange[6], ScaleXRange[7], ScaleXRange[8], ScaleXRange[9]])
+        ScaleXRange_C.push([ScaleXRange[0], ScaleXRange[1], ScaleXRange[2], ScaleXRange[3]])
+        ScaleXRange_C.push([ScaleXRange[4], ScaleXRange[5], ScaleXRange[6], ScaleXRange[7]])
+        ScaleXRange_C.push([ScaleXRange[8], ScaleXRange[9], ScaleXRange[10], ScaleXRange[11]])
+        ScaleXRange_C.push([ScaleXRange[12], ScaleXRange[13], ScaleXRange[14], ScaleXRange[15]])
+        
+        
         ScaleXRange = ScaleXRange_C
+        
         this.name.forEach((name, indexY) => {
             let dataset1 = []
             let dataset1_copy = []
@@ -288,6 +339,7 @@ class Compare extends React.Component {
                     dataset1.push({ "num": item1[name], "lable": 0, "loss_mae": item1.loss_mae, "tru": item1.dc_power, "pre": item1.testPre, "hour": item1.hour })
                 }
             })
+            // deepCopy dataset1_copy <-  dataset1
             $.extend(true, dataset1_copy, dataset1)
             dataset1_copy = dataset1_copy.sort((a, b) => { return a.num - b.num })
             let dis = dataset1_copy.slice(-1)[0]['num'] - dataset1_copy[0]['num']
@@ -300,6 +352,7 @@ class Compare extends React.Component {
             let scaleY = d3.scaleLinear()
                 .domain(domainY)
                 .range([ScaleYRange[indexY][1] - 2, ScaleYRange[indexY][0] + 2])
+            
             dataNameT[indexY].forEach((flag, indexX) => {
                 let dataset2 = []
                 let dataset2_copy = []
@@ -318,6 +371,7 @@ class Compare extends React.Component {
                 dataset2_copy = dataset2_copy.sort((a, b) => { return a - b })
                 let dis_ = dataset2_copy.slice(-1)[0] - dataset2_copy[0]
                 let XLine = [dataset2_copy[0], dataset2_copy[0] + dis_ / 4, dataset2_copy[0] + 2 * dis_ / 4, dataset2_copy[0] + 3 * dis_ / 4, dataset2_copy.slice(-1)[0]]
+                // 暂定 没有问题
                 svg.append("g")
                     .selectAll(".lines" + indexX + indexY + "X")
                     .data(XLine)
@@ -329,19 +383,23 @@ class Compare extends React.Component {
                     .attr("y2", padding.height - padding.bottom - (width) * (dataName.length - indexY) + width)
                     .attr("stroke", "white")
                     .attr("stroke-width", "1px")
+                // TODO: 修改对齐
                 svg.append("g")
                     .selectAll(".lines" + indexY + indexX + "Y")
                     .data(YLine)
                     .join("line")
                     .attr("class", "lines" + indexY + indexX + "Y")
-                    .attr("x1", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
-                    .attr("x2", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
+                    // .attr("x1", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
+                    // .attr("x2", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
+                    .attr("x1", padding.width + 38 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
+                    .attr("x2", padding.width + 38 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
                     .attr("y1", (d, i) => {
                         return scaleY(YLine[i])
                     })
                     .attr("y2", (d, i) => scaleY(YLine[i]))
                     .attr("stroke", "white")
                     .attr("stroke-width", "1px")
+                // 自相关
                 if (flag === name) {
                     let dataRect = []
                     let dataNumSum = []
@@ -386,9 +444,9 @@ class Compare extends React.Component {
                                 return d
                             }
                         })
-                        .attr("x", 340)
+                        .attr("x", 340 + 10)
                         .attr("y", () => {
-                            return scaleY(dataset2_copy[0]) - 10
+                            return scaleY(dataset2_copy[0]) - 15
                         })
                         .attr("font-size", "10px")
                         .attr("transform-origin", () => {
@@ -410,14 +468,50 @@ class Compare extends React.Component {
                             }
                         })
                         .attr("x", () => {
-                            return scaleX(dataset2_copy[0]) + 10
+                            return scaleX(dataset2_copy[0]) + 20
                         })
                         // x轴对应的横纵坐标
                         // .attr("y", 295)
-                        .attr("y",432)
+                        .attr("y",432)// 432 
                         .attr("font-size", "10px")
                 }
                 else {
+                    // console.log("scatter index",indexX,indexY)
+                    if (indexY < 3 && indexX === 0 ||
+                        indexY < 2 && indexX === 1 ||
+                        indexY < 1 && indexX === 2 
+                    )
+                    {
+                        svg.append("g")
+                        .selectAll(".scatters" + indexX + indexY)
+                        .data(dataset1)
+                        .join("circle")
+                        .attr("class", "scatters" + indexX + indexY)
+                        .attr("cx", (d, i) => {
+                            return scaleX(dataset2[i])
+                            // return scaleY(dataset2[i])
+
+                        })
+                        .attr("cy", (d, i) => {
+                            return scaleY(dataset1[i]['num'])
+                            // return scaleX(dataset1[i]['num'])
+                        })
+                        .attr("r", "1.5px")
+                        .attr("fill", d => {
+                            if (d.loss_mae > timeMae[d.hour]) {
+                                if (d.pre - d.tru > 0) {
+                                    return "red"
+                                } else {
+                                    return "blue"
+                                }
+                            } else {
+                                return "rgb(255,140,0)"
+                            }
+                        })
+                        .attr("stroke", "white")
+                        .attr("stroke-width", "0.1px")
+                        .attr("loss_mae", d => d.loss_mae)
+                    }else
                     svg.append("g")
                         .selectAll(".scatters" + indexX + indexY)
                         .data(dataset1)
@@ -449,6 +543,7 @@ class Compare extends React.Component {
 
         })
     }
+
     ImportShow = () => {
         // 各种 条件的重要程度
         const data = [
@@ -527,7 +622,7 @@ class Compare extends React.Component {
         const height = containerHeight - margin.top - margin.bottom
         const width = containerWidth - margin.left - margin.right
         const radius = d3.min([height,width])/2
-        // TODO: 绘制 重量占比图
+        
         // console.log("container",containerHeight,containerWidth,radius)
         
         const irr_ave = d3.sum(irr_T)/irr_T.length
@@ -687,7 +782,7 @@ class Compare extends React.Component {
                     .attr("height",containerHeight)
                     .attr("width",containerWidth)
                     .append("g")
-                    .attr("transform", `translate(${containerWidth/2},${containerHeight/2})`)
+                    .attr("transform", `translate(${containerWidth/2},${containerHeight/2 - 14})`)
 
         myTextures.forEach((t) => d3.select(".template-sector-svg").call(t))
     
@@ -696,7 +791,7 @@ class Compare extends React.Component {
                     .enter()
                     .append("g")
                     .attr("class","arc")
-        
+        // 绘制 底部扇形
         g.append("path")
             .attr("d",arc)
             .style("fill", (d) => {
@@ -875,7 +970,7 @@ class Compare extends React.Component {
     render() {
         return (
             <div className='Compare' style={{ position: 'absolute', ...this.theme }}>
-                <div style={{ width: this.theme.width, height: 200 }} className="myChange-sector">
+                <div style={{ width: this.theme.width, height: 180 }} className="myChange-sector">
 
                 </div>
                 {/* <div style={{ width: this.theme.width, height: 100 }}>
@@ -887,7 +982,7 @@ class Compare extends React.Component {
                         <line x1={0} x2={this.theme.width - 2} y1={99} y2={99} stroke={"rgb(180,180,180)"} strokeDasharray="3 2"></line>
                     </svg>
                 </div> */}
-                <svg style={{ width: this.theme.width, height: this.theme.height - 200}}  id="ploat">
+                <svg style={{ width: this.theme.width, height: this.theme.height - 180}}  id="ploat">
                     <g className="gs"></g>
                 </svg>
                 {/* <div style={{ width: 70, height: 70, position: "absolute", top: 240, left: 20, background: "white" }} id="liquidfills">
