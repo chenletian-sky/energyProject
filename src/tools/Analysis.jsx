@@ -542,9 +542,13 @@ class Analysis extends React.Component {
                 DeletTemp()
                 
                 d3.select("#compaleline").selectAll("g").remove()
-                // console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data)
-                
-                // 
+                console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data,d.time)
+                var sendObject = {
+                    id:d.id,
+                    time:d.time,
+                    // mae:data[d.label]
+                }
+                this.props.MDSFetchWithMatrix(sendObject)
                 this.props.LineCompareChange(d.id,sendTimes,data[d.label].mae,data)
             })
     }

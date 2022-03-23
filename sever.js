@@ -117,6 +117,28 @@ app.post('/MDS2',(req,res)=>{
     });
 })
 
+app.post('/MDS3',(req,res)=>{
+    const data = req.body
+    console.log("server data",data)
+    res.send(data)
+    // const mae = data.mae
+    // let workerProcess = child_process.exec(
+    //     `python ./data/MDS2-2day.py ${time} ${month} ${day}`,
+    //     (error, stdout, stderr)=>{
+    //         if (error) {
+    //             console.log(error.stack);
+    //             console.log("Error code: " + error.code);
+    //         }else{
+    //             let json = eval('(' + stdout + ')');
+    //             res.send(json)
+    //         }
+    //     }
+    // );
+    // workerProcess.on("exit", function (code) {
+    //     console.log("子进程已退出，退出码 " + code);
+    // });
+})
+
 app.post('/Kmeans',(req,res)=>{
     const data = req.body
     const split = data.split

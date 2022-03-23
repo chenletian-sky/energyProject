@@ -211,6 +211,23 @@ class App extends React.Component {
 		
 		})
 	}
+	/**
+	 * @method
+	 * 联系矩阵图和散点图
+	 * @param currentData
+	 * 包含 id currentTime 
+	 */
+	// TODO: 与散点图进行交互 => addInfo
+	MDSFetchWithMatrix = (currentData) => {
+		console.log("currentData",currentData)
+		axios({
+			method:"POST",
+			url:URL + "/MDS3",
+			data: currentData
+		}).then((response) => {
+			console.log("mds3发送成功",response.data)
+		})
+	}
 
 	/**
 	 * @method
@@ -325,6 +342,7 @@ class App extends React.Component {
 						data={this.dataT}
 						beforeMDSFetch={this.beforeMDSFetch}
 						LineCompareChange={this.LineCompareChange}
+						MDSFetchWithMatrix={this.MDSFetchWithMatrix}
 					>
 					</Analysis>
 					<LineCompale
