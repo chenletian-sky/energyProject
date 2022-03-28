@@ -231,12 +231,12 @@ class LSTMPredict:
             ax2.plot(datasave['date_time'], datasave['irradiation'], color='y', label="IRRADIATION")
             ax1.legend(ncol=4, loc="best")
             plt.show()
-            # data_save =  datasave.to_json(orient='records', date_format = 'iso')
-            # data_save = json.loads(data_save, encoding='utf-8')
-            # self.dataLast[key] = data_save
+            data_save =  datasave.to_json(orient='records', date_format = 'iso')
+            data_save = json.loads(data_save, encoding='utf-8')
+            self.dataLast[key] = data_save
             break
-        # with open('dataLast.json','w') as f:
-        #     json.dump(self.dataLast,f)
+        with open('dataLast2.json','w') as f:
+            json.dump(self.dataLast,f)
 
 def main(args):
     lstm = LSTMPredict(args)
@@ -244,9 +244,11 @@ def main(args):
     lstm.Predect()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='LSTM')
-    parser.add_argument('-file1', dest='generation1_name', default="./data/Plant_1_Generation_Data.csv")
-    parser.add_argument('-file2', dest='weather1_name', default="./data/Plant_1_Weather_Sensor_Data.csv")
-    parser.add_argument('-file3', dest='check', default="./data/Check_Data.csv")
+    parser.add_argument('-file1', dest='generation1_name', default="./Plant_1_Generation_Data.csv")
+    parser.add_argument('-file2', dest='weather1_name', default="./Plant_1_Weather_Sensor_Data.csv")
+    # parser.add_argument('-file1', dest='generation1_name', default="./Plant_2_Generation_Data.csv")
+    # parser.add_argument('-file2', dest='weather1_name', default="./Plant_1_Weather_Sensor_Data.csv")
+    parser.add_argument('-file3', dest='check', default="./Check_Data.csv")
     parser.add_argument('-epochs', dest='epochs', default=10)
     parser.add_argument('-batch', dest='batch', default=10)
     parser.add_argument('-seq_size', dest='seq_size', default=4)

@@ -836,7 +836,7 @@ class Control extends React.Component {
                     })
                     .attr("y",d => {
                         let y = Math.floor(currentDay / 7) * heightOffset + config.cellHeight*7/8
-                        return y 
+                        return y
                     })
                     .attr("font-size","15px")
                     // .attr("z-index","99")
@@ -964,7 +964,7 @@ class Control extends React.Component {
                         //     // return d3.interpolateReds(scaleB(d.aboveAvg))
                         // } 
                         
-                         if (d.above === 1 || d.below === 1) {
+                        if (d.above === 1 || d.below === 1) {
                             // return d3.interpolateGreens(scaleAB(d.belowAvg + d.aboveAvg))
                             return computeGreen(scaleAB(d.belowAvg + d.aboveAvg))
                             // return d3.interpolateBlues(scaleB(d.belowAvg))
@@ -1487,8 +1487,13 @@ class Control extends React.Component {
                                         // 绘制日历图
                                         this.calendarRender()
                                         
-
                                         this.StatisticsRender()//统计信息
+
+                                        // 将 linecompale date,split初始化
+                                        const temporaryDate = this.timeDate.split("-")
+                                        this.props.MyLineCompale.current.date =  { "day":temporaryDate[2] , "month": temporaryDate[1] }
+                                        this.props.MyLineCompale.current.split = inputValue2
+
                                         this.setState({ disabled: false })
                                         Lo.style.display = "none"
                                     })

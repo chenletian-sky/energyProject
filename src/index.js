@@ -12,6 +12,8 @@ import './index.css';
 import App from './App.jsx';
 import reportWebVitals from './reportWebVitals';
 
+import "./rem"
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

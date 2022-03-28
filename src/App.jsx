@@ -32,6 +32,14 @@ class App extends React.Component {
 			num: 0
 		}
 		// 各展示框主题样式初始化
+		// this.ControlTheme = null
+		// this.ScatterTheme = null
+		// this.CompareTheme = null
+		// this.AnalysisTheme = null
+		// this.AbnormalTheme = null
+		// this.AddInfoTheme = null
+		// this.LineCompaleTheme = null
+		// this.DataIntroduceTheme = null
 		this.ControlTheme = Themes.ControlTheme
 		this.ScatterTheme = Themes.ScatterTheme
 		this.CompareTheme = Themes.CompareTheme
@@ -77,7 +85,7 @@ class App extends React.Component {
 		// this.myAnalysis.current.forceShow()
 	}
 	MDSFetch = (data, value, date, month) => {
-		
+		console.log("mdsFetch ",data,value,date,month)
 		this.myLineCompale.current.date = { "day": date, "month": month }
 		this.myLineCompale.current.split = value
 		
@@ -220,6 +228,7 @@ class App extends React.Component {
 	// TODO: 与散点图进行交互 => addInfo
 	MDSFetchWithMatrix = (currentData) => {
 		console.log("currentData",currentData)
+		
 		axios({
 			method:"POST",
 			url:URL + "/MDS3",
@@ -316,45 +325,13 @@ class App extends React.Component {
 						theme={this.ScatterTheme}>
 					</Scatter> */}
 					{/* 数据介绍 */}
-					<DataIntroduce
-						ref={this.myDataIntroduce}
-						theme={this.DataIntroduceTheme}
-						data={this.data_inform}>
-					</DataIntroduce>
+					
 					{/* 原来的散点图栏，含有时间选择选项 */}
 
-					<AddInfo  
-						ref={this.myAddInfo}
-						theme={this.AddInfoTheme}
-						dataT={this.dataT}
-						LineCompareChange={this.LineCompareChange}
-						KeyNameChange={this.KeyNameChange}>
-					</AddInfo>
+					
 
-					<Compare
-						ref={this.myCompare}
-						theme={this.CompareTheme}
-						data={this.dataT}>
-					</Compare>
-					<Analysis
-						ref={this.myAnalysis}
-						theme={this.AnalysisTheme}
-						data={this.dataT}
-						beforeMDSFetch={this.beforeMDSFetch}
-						LineCompareChange={this.LineCompareChange}
-						MDSFetchWithMatrix={this.MDSFetchWithMatrix}
-					>
-					</Analysis>
-					<LineCompale
-						ref={this.myLineCompale}
-						theme={this.LineCompaleTheme}
-						data={this.dataT}
-						SimilarSelect={this.SimilarSelect}
-						AveCompare={this.AveCompare}
-						flagRenderPie={this.flagRenderPie}	
-						MultiSectorRender={this.MultiSectorRender}
-					>
-					</LineCompale>
+					
+					
 					<Abnormal
 						ref={this.myAbnormal}
 						theme={this.AbnormalTheme}
@@ -362,31 +339,77 @@ class App extends React.Component {
 						FilterRender={this.FilterRender}>
 					</Abnormal>
 
-					<Flag 
-						ref={this.myFlag}
-						theme={Themes.FlagTheme}	
-					></Flag>
+					
 					
 					{/* 原控制台(含原信息框) */}
-					<Control
-						ref={this.myControl}
-						theme={this.ControlTheme}
-						data={this.source}
-						dataT={this.dataT}
-						MonthDayDict={this.MonthDayDicts}
-						MAEChange={this.MAEChange}
-						KeyNameChange={this.KeyNameChange}
-						MAEChangeDe={this.MAEChangeDe}
-						MDSFetch={this.MDSFetch}
-						PagePass={this.PagePass}
-						KmeansR={this.KmeansR}
-						FloatKmeans={this.FloatKmeans}
-						ColorC={this.ColorC}
-						GeneralLineRander={this.GeneralLineRander}
-						ChangeTime={this.ChangeTime}
-						
-					>
-					</Control>
+					
+
+					<div className="left-container" id='left-container'>
+						<DataIntroduce
+							ref={this.myDataIntroduce}
+							theme={this.DataIntroduceTheme}
+							data={this.data_inform}>
+						</DataIntroduce>
+						<Control
+							ref={this.myControl}
+							theme={this.ControlTheme}
+							data={this.source}
+							dataT={this.dataT}
+							MonthDayDict={this.MonthDayDicts}
+							MAEChange={this.MAEChange}
+							KeyNameChange={this.KeyNameChange}
+							MAEChangeDe={this.MAEChangeDe}
+							MDSFetch={this.MDSFetch}
+							PagePass={this.PagePass}
+							KmeansR={this.KmeansR}
+							FloatKmeans={this.FloatKmeans}
+							ColorC={this.ColorC}
+							GeneralLineRander={this.GeneralLineRander}
+							ChangeTime={this.ChangeTime}
+							MyLineCompale={this.myLineCompale}
+						>
+						</Control>
+						{/* <AbnormalCalendar></AbnormalCalendar> */}
+						<Flag 
+							ref={this.myFlag}
+							theme={Themes.FlagTheme}	
+						></Flag>
+					</div>
+					<div className="center-container">
+						<Analysis
+							ref={this.myAnalysis}
+							theme={this.AnalysisTheme}
+							data={this.dataT}
+							beforeMDSFetch={this.beforeMDSFetch}
+							LineCompareChange={this.LineCompareChange}
+							MDSFetchWithMatrix={this.MDSFetchWithMatrix}
+						>
+						</Analysis>
+						<LineCompale
+							ref={this.myLineCompale}
+							theme={this.LineCompaleTheme}
+							data={this.dataT}
+							SimilarSelect={this.SimilarSelect}
+							AveCompare={this.AveCompare}
+							flagRenderPie={this.flagRenderPie}	
+							MultiSectorRender={this.MultiSectorRender}
+						>
+						</LineCompale>
+					</div>
+					<div className="right-container">
+						<AddInfo  
+							ref={this.myAddInfo}
+							theme={this.AddInfoTheme}
+							dataT={this.dataT}
+							LineCompareChange={this.LineCompareChange}
+							KeyNameChange={this.KeyNameChange}>
+						</AddInfo>
+						<Compare
+							ref={this.myCompare}
+							theme={this.CompareTheme}
+							data={this.dataT}>
+						</Compare>
+					</div>
 				</div>
 			)
 		}
