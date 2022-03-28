@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 export default class Chart {
     constructor(){
         this._width = 300;
-        this._height = 200;
+        this._height = 220;
         this._margins = {top:0, left:0, right:0, bottom:0};
         this._data = [];
         this._scaleX = null;
@@ -119,7 +119,7 @@ export default class Chart {
                             // .attr('transform',"rotate(90)")
                             // .attr('transform',`rotate(90,${this._width/2},${this._height/2}) translate(${30},${50})`)
                             // .attr('transform',`translate(${-10},${100})`)
-                            .attr('transform', 'translate(' + this.bodyX()/4 + ',' + this.bodyY() + ')')
+                            .attr('transform', 'translate(' + this.bodyX()/4 + ',' + this.bodyY()*2 + 20 + ')')
                             // .attr('clip-path', "url(#clip)");
         }
 
@@ -130,7 +130,10 @@ export default class Chart {
         if (!this._box){
             this._box = d3.select('#Calendar')
                             .append('div')
-                            .attr('class','box');
+                            .attr('class','box')
+                            // .attr("transform","translate(0,20)");
+                            // .attr("position",'relative')
+                            // .attr("top",20)
         }
 
         if (!this._svg){

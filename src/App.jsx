@@ -15,15 +15,17 @@ import axios from 'axios'
 import Analysis from './tools/Analysis'
 import Abnormal from './tools/Abnormal'
 import AddInfo from './tools/AddInfo'
+// import AddInfo from './tools/AddInfo_before'
 import { rTime } from './tools/methods.js'
 import * as d3 from 'd3'
 import LineCompale from './tools/LineCompale.jsx'
 import Flag from './tools/flag.jsx'
 import 'antd/dist/antd.css';
 import {Spin} from 'antd'
-
+import AbnormalCalendar from './tools/AbnormalCalendar.jsx';
 import DataIntroduce from './tools/DataIntroduce.jsx';
 import { URL } from './constant/index.js';
+import TentativeCom from './tools/TentativeCom.jsx';
 
 class App extends React.Component {
 	constructor(props) {
@@ -48,6 +50,9 @@ class App extends React.Component {
 		this.AddInfoTheme = Themes.AddInfoTheme
 		this.LineCompaleTheme = Themes.LineCompale
 		this.DataIntroduceTheme = Themes.DataIntroduceTheme
+		this.AbnormalCalendarTheme = Themes.AbnormalCalendarTheme
+		this.StatisticsTheme = Themes.StatisticsTheme
+		this.TentativeComTheme = Themes.TentativeComTheme
 		// 创建 ref 附加到react属性中 方便调用
 		this.myControl = React.createRef()
 		this.myScatter = React.createRef()
@@ -58,6 +63,7 @@ class App extends React.Component {
 		this.myLineCompale = React.createRef()
 		this.myFlag = React.createRef()
 		this.myDataIntroduce = React.createRef()
+		this.myAbnormalCalendar = React.createRef()
 	}
 	// PagePass = (value) => {
 	// 	this.myAddInfo.current.page = value
@@ -247,6 +253,58 @@ class App extends React.Component {
 		this.myFlag.current.PieRender(piePathes)
 	}
 
+	/**
+	 * @method 
+	 * 联系 日历图和控制台
+	 */
+	MyAbnormalCalendarRender =() => {
+		this.myAbnormalCalendar.current.calendarRender()	
+	}
+
+	/**
+	 * @method
+	 * 联系 日历图和矩阵图
+	 */
+	connectCalendarAndMatrix = (currentDate) => {
+		console.log("connect matrix",this.myControl.current.attrLabel)
+		this.KmeansR(this.myControl.current.attrLabel,currentDate)
+		this.ColorC(this.myControl.current.ListData)
+		// this.myControl.current.AttrsAdjust()
+	}
+
+	/**
+	 * @method
+	 * 联系 日历图 和 散点图
+	 */
+	connectCalendarAndScatter = (currentDate) => {
+		let selectCurrentDate = null
+		if(currentDate !== null){
+			selectCurrentDate = currentDate.split('-');
+		}else{
+			selectCurrentDate = this.myAbnormalCalendar.current.selectDay.split("-")
+		}
+		
+		// const myMae = []
+		// for (let i = 0; i < document.getElementsByClassName('textmae').length; i++) {
+		// 		myMae.push(document.getElementsByClassName('textmae')[i].textContent)
+		// }
+		console.log("connect matrix inputValue2",this.myControl.current)
+		const step = this.myControl.current.state.inputValue2
+		axios({
+			method:"POST",
+			url:`${URL}/MDS`,
+			data:{
+				"split":step,
+				"month":selectCurrentDate[1],
+				"day":selectCurrentDate[2],
+				// "mae":myMae
+			}
+		}).then((responser) => {
+			console.log("connectCalendarAndScatter",responser.data, selectCurrentDate[2], selectCurrentDate[1])
+			this.MDSFetch(responser.data, step, parseInt( selectCurrentDate[2]),parseInt( selectCurrentDate[1]))
+		})
+	}
+
 	componentDidMount() {
 		const url = "http://localhost:5000/data" // 读取每个逆变器的信息
 		const url_inform = 'http://localhost:5000/information' // 数据信息读取
@@ -353,6 +411,7 @@ class App extends React.Component {
 						<Control
 							ref={this.myControl}
 							theme={this.ControlTheme}
+							StatisticsTheme={this.StatisticsTheme}
 							data={this.source}
 							dataT={this.dataT}
 							MonthDayDict={this.MonthDayDicts}
@@ -367,13 +426,25 @@ class App extends React.Component {
 							GeneralLineRander={this.GeneralLineRander}
 							ChangeTime={this.ChangeTime}
 							MyLineCompale={this.myLineCompale}
+							MyAbnormalCalendarRender={this.MyAbnormalCalendarRender}
+							connectCalendarAndScatter={this.connectCalendarAndScatter}
 						>
 						</Control>
-						{/* <AbnormalCalendar></AbnormalCalendar> */}
-						<Flag 
+						<AbnormalCalendar
+							ref={this.myAbnormalCalendar}
+							dataT={this.dataT}
+							theme={this.AbnormalCalendarTheme}
+							connectCalendarAndMatrix={this.connectCalendarAndMatrix}
+							GeneralLineRander={this.GeneralLineRander}
+							connectCalendarAndScatter={this.connectCalendarAndScatter}
+						></AbnormalCalendar>
+						<TentativeCom
+							theme={this.TentativeComTheme}
+						></TentativeCom>
+						{/* <Flag 
 							ref={this.myFlag}
 							theme={Themes.FlagTheme}	
-						></Flag>
+						></Flag> */}
 					</div>
 					<div className="center-container">
 						<Analysis
@@ -383,6 +454,7 @@ class App extends React.Component {
 							beforeMDSFetch={this.beforeMDSFetch}
 							LineCompareChange={this.LineCompareChange}
 							MDSFetchWithMatrix={this.MDSFetchWithMatrix}
+							KeyNameChange={this.KeyNameChange}
 						>
 						</Analysis>
 						<LineCompale

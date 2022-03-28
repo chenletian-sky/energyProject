@@ -2,6 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import { Spin } from 'antd';
 import {DeletTemp} from "./methods"
+import MyHeader from "../components/MyHeader"
 class Analysis extends React.Component {
     theme
     data
@@ -531,7 +532,7 @@ class Analysis extends React.Component {
             .on("click" , (event,d) => {
                 // 与 散点图 联系
                 // this.props.beforeMDSFetch(d)
-                // console.log("test state",this,this.state,d,data)
+                
                 const times = data[d.label].time[0].split("~")
                 // const firstNumber =  parseInt(times[0])  
                 const sendTimes = {
@@ -540,18 +541,22 @@ class Analysis extends React.Component {
                 }
                 // 预处理
                 DeletTemp()
-                
                 d3.select("#compaleline").selectAll("g").remove()
+
                 console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data,d.time)
-                
+                const selectCurrentData = d.date.split("-")
                 var sendObject = {
                     id:d.id,
                     time:d.time,
                     // mae:data[d.label]
                 }
-                this.props.MDSFetchWithMatrix(sendObject)
-                
+                // 与散点图进行交互
+                // this.props.MDSFetchWithMatrix(sendObject)
+                // 交互传参 当前逆变器的id 时间段(聚类的时间段 eg:["13~16"]) 当前类别的设定阈值(mae) 当前聚类，步长 以及阈值的总数据
                 this.props.LineCompareChange(d.id,sendTimes,data[d.label].mae,data)
+                // 右下角 compare 改变
+                // console.log("analysis time",d.time,d.id, data,d)
+                this.props.KeyNameChange(d.id, parseInt(selectCurrentData[1]),parseInt(selectCurrentData[2]), data)
             })
     }
 
@@ -1022,11 +1027,12 @@ class Analysis extends React.Component {
         return (
             <div className='Analysis' style={{ position: 'absolute', ...this.theme }}>
                 {/* 上侧标题 */}
-                <div style={{
+                <MyHeader title="Matrix Analysis"></MyHeader>
+                {/* <div style={{
                     ...this.theme.title,
-                }}>
+                }}> */}
                     {/* <svg id="tags" style={{ width: this.theme.title.width, height: this.theme.title.height }}></svg> */}
-                </div>
+                {/* </div> */}
                 {/* 主要展示部分 */}
                 <div style={{
                     width: this.theme.width,

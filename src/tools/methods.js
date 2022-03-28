@@ -94,6 +94,29 @@ export const DelectAllg = () => {
     d3.select("#distribute").selectAll("g").remove()
 }
 
+// 处理时间信息的方法
+export const getTime = (date) => {
+    let m = date.getMonth() + 1
+    m = m < 10 ? ('0' + m) : m
+    let d = date.getDate()
+    d = d < 10 ? ('0' + d) : d
+    let h = date.getHours()
+    h = h < 10 ? ('0' + h) : h
+    let minute = date.getMinutes()
+    minute = minute < 10 ? ('0' + minute) : minute
+    let second = date.getSeconds()
+    second = second < 10 ? ('0' + second) : second
+    return h + ':' + minute + ':' + second
+} 
+export const getdate = (date) => {
+    var y = date.getFullYear()
+    var m = date.getMonth() + 1
+    m = m < 10 ? ('0' + m) : m
+    var d = date.getDate()
+    d = d < 10 ? ('0' + d) : d
+    return y + '-' + m + '-' + d
+}
+
 
 
 

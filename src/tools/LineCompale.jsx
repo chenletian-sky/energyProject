@@ -1,6 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 import { dtw, DeletTemp } from './methods.js'
+import MyHeader from "../components/MyHeader"
 class LineCompale extends React.Component {
 	theme
 	data
@@ -446,7 +447,7 @@ class LineCompale extends React.Component {
 					
 					// this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
 					// test
-					this.props.MultiSectorRender(irr_T, at_T, mt_T)
+					// this.props.MultiSectorRender(irr_T, at_T, mt_T)
 				}
 			})
 
@@ -1321,7 +1322,9 @@ class LineCompale extends React.Component {
 
 		return (
 			<div className='LineCompale' style={{ position: 'absolute', ...this.theme }}>
-				<div style={{ ...this.theme.title }}>
+				{/* <div style={{ ...this.theme.title }}> */}
+				<div>
+				<MyHeader title="Time Analysis"></MyHeader>
 				{/* 750 => 700 */}
 					<div style={{ width: "20px", height: "20px", position: "absolute", top: "0px", left: "700px" }} id="kuan" className="small-icon" onClick={() => {
 						let stateBar = document.getElementById("select")

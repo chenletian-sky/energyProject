@@ -2,6 +2,7 @@
 import React from "react";
 import 'antd/dist/antd.css';
 import {Table} from 'antd';
+import MyHeader from "../components/MyHeader"
 class DataIntroduce extends React.Component {
     constructor(props){
         super(props);
@@ -26,7 +27,8 @@ class DataIntroduce extends React.Component {
         })
         return(
             <div className="DataIntroduce" style={{position:'absolute', ...this.theme}}>
-                <div style={{position:'relative', float:'left', ...this.theme.title, lineHeight: this.theme.title.height + 'px'}}>dataset1</div>
+                {/* <div style={{position:'relative', float:'left', ...this.theme.title, lineHeight: this.theme.title.height + 'px'}}>dataset1</div> */}
+                <MyHeader title="Dataset" position={false}></MyHeader>
                 <div style={{float:'left', width: this.theme.width, height: 29}}>
                     {label}
                 </div>

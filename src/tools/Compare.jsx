@@ -5,8 +5,9 @@ import $ from 'jquery';
 import * as echarts from 'echarts'
 import 'echarts-liquidfill';
 import {modelConditionalScaleData} from '../constant/index'
+import MyHeader from "../components/MyHeader"
 
-const Compare_scaleLine_svg_zoom = 1.25
+const Compare_scaleLine_svg_zoom = 1.2
 
 class Compare extends React.Component {
     theme
@@ -283,7 +284,9 @@ class Compare extends React.Component {
         const svg = d3.select("#ploat")
                         .append("g")
                         .attr("class","all-g")
-                        .attr("transform",`translate(${26},${-80})`)
+                        .attr("height","350px")
+                        .attr("width","350px")
+                        .attr("transform",`translate(${26},${84})`)
                         // .attr("zoom",2)
         
         console.log("dataName",dataName)
@@ -391,8 +394,8 @@ class Compare extends React.Component {
                     .attr("class", "lines" + indexY + indexX + "Y")
                     // .attr("x1", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
                     // .attr("x2", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
-                    .attr("x1", padding.width + 38 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
-                    .attr("x2", padding.width + 38 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
+                    .attr("x1", padding.width + 41 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
+                    .attr("x2", padding.width + 41 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
                     .attr("y1", (d, i) => {
                         return scaleY(YLine[i])
                     })
@@ -472,7 +475,7 @@ class Compare extends React.Component {
                         })
                         // x轴对应的横纵坐标
                         // .attr("y", 295)
-                        .attr("y",432)// 432 
+                        .attr("y",258)// 432 
                         .attr("font-size", "10px")
                 }
                 else {
@@ -970,9 +973,10 @@ class Compare extends React.Component {
     render() {
         return (
             <div className='Compare' style={{ position: 'absolute', ...this.theme }}>
-                <div style={{ width: this.theme.width, height: 180 }} className="myChange-sector">
+                <MyHeader title="Feature Matrix"></MyHeader>
+                {/* <div style={{ width: this.theme.width, height: 180 }} className="myChange-sector">
 
-                </div>
+                </div> */}
                 {/* <div style={{ width: this.theme.width, height: 100 }}>
                     <svg style={{ width: this.theme.width, height: 100 }} id="import">
                         <g id="imrect"></g>
@@ -982,7 +986,14 @@ class Compare extends React.Component {
                         <line x1={0} x2={this.theme.width - 2} y1={99} y2={99} stroke={"rgb(180,180,180)"} strokeDasharray="3 2"></line>
                     </svg>
                 </div> */}
-                <svg style={{ width: this.theme.width, height: this.theme.height - 180}}  id="ploat">
+                <svg 
+                    style={{ 
+                        width: this.theme.width, 
+                        height: this.theme.height,
+                        position:"relative",
+                        // top:"100px"    
+                    }}  
+                    id="ploat">
                     <g className="gs"></g>
                 </svg>
                 {/* <div style={{ width: 70, height: 70, position: "absolute", top: 240, left: 20, background: "white" }} id="liquidfills">

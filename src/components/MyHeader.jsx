@@ -1,28 +1,30 @@
 import React from "react";
 
 export default function Heading (props){
+    const position =  props.position ? "absolute" : "relative"
     const HeadingStyle = {
-      position:"absolute",
+      position:`${position}`,
       // top:"1rem",
-      // left:"1rem",
-      height: "30rem",
+      // left:"1px",
+      height: "20px",
       // width: "fit-content",
-      width:"calc(100% - 4rem)",
+      width:"calc(100%)",
       background:
         "-webkit-linear-gradient(top,rgb(244,244,244),rgb(233,233,233))",
       color: "black",
       float: "left",
-      fontSize: "24rem",
+      fontSize: "10px",
       fontFamily: "Verdana, Arial, Helvetica, sans-serif",
-      // padding: "2.5rem 20rem",
-      padding:"0 0 0 4rem",
+      // padding: "2.5px 20px",
+      padding:"0 0 0 4px",
       
       fontWeight: 600,
-      borderRadius:"5rem"
+      // borderRadius:"5px"
     };
     const SpanStyle = {
-      marginLeft: "5rem",
-      marginTop: "15rem",
+      marginLeft: "5px",
+      marginTop: "10px",
+      marginBottom:"20px",
       color:"rgba(86,86,86,.9)"
       // float:"left"
     };
