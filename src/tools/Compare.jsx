@@ -4,6 +4,7 @@ import textures from 'textures';
 import $ from 'jquery';
 import * as echarts from 'echarts'
 import 'echarts-liquidfill';
+import {getdate,getTime} from "./methods"
 import {modelConditionalScaleData} from '../constant/index'
 import MyHeader from "../components/MyHeader"
 
@@ -16,6 +17,10 @@ class Compare extends React.Component {
         super(props)
         this.state = {}
         this.theme = this.props.theme
+        /**
+         * @var
+         * 总数据 dataT
+         */
         this.data = this.props.data
         this.padding = {
             top: 10,
@@ -42,6 +47,10 @@ class Compare extends React.Component {
          */
         this.name = ["module_temperature", "ambient_temperature", "irradiation", "dc_power"]
         // this.nameU = ["dc_power", "irradiation", "ambient_temperature", "module_temperature"]
+        /**
+         * @var
+         * 所选 逆变器 id
+         */
         this.sourceKey = null
         this.month = null
         this.day = null
@@ -218,29 +227,71 @@ class Compare extends React.Component {
         this.RectShow(this.at_T, at_Y, "rgba(255,127,0,0.5)", "ambient_temperature")
     }
 
+    /**
+     * @method
+     * 绘制 4*4 矩阵图
+     */
     scaleLine = () => {
         d3.select("#ploat").selectAll("g").remove()
         const timeMae = {}
-
+        /**
+         * @var
+         * 当前类别的 时间段
+         */
+        let selectCategoryTime = []
         this.maeList.forEach((item) => {
             item.time.forEach((t) => {
                 let times = t.split("~")
+                selectCategoryTime = times
                 for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
                     timeMae[i] = item.mae
                 }
             })
         })
+        /**
+         * @var 
+         * 所选逆变器的所有数据
+         */
         let data = this.data
         let dataOne = this.data[this.sourceKey]
+        /**
+         * @var
+         * 所选日期当天的数据 分号类别
+         */
         let datasetAll = []
         for (let key in data) {
             data[key].forEach((item) => {
-                if (item.month === this.month && item.day === this.day) {
+                // if (item.month === this.month && item.day === this.day) {
+                //     datasetAll.push(item)
+                // }
+                const item_current_time = getTime( item.date_time ).split(":")
+                if(
+                    parseInt(item_current_time[0]) >= parseInt( selectCategoryTime[0]) &&
+                    parseInt(item_current_time[0]) <= parseInt( selectCategoryTime[1]) 
+                    // && item.month === this.month && item.day === this.day
+                ){
                     datasetAll.push(item)
                 }
             })
         }
-        data = dataOne
+        // 提取对应的时间段数据
+        dataOne.map((item, index) => {
+            const item_date = getTime(item.date_time).split(":")
+            if(  
+                parseInt( item_date[0]) >= parseInt( selectCategoryTime[0] ) && 
+                parseInt( item_date[1]) <= parseInt( selectCategoryTime[1] )
+            ){
+                return item
+            }
+        })
+        
+        console.log("datesetAll",datasetAll)
+        console.log("dataOne",dataOne)
+        console.log("selectCategory",selectCategoryTime)
+        // TODO: 类别选择？
+        data = datasetAll
+        // data = dataOne
+        // data = data
         const padding = this.padding
         const name = this.name
         /**
@@ -289,8 +340,8 @@ class Compare extends React.Component {
                         .attr("transform",`translate(${26},${84})`)
                         // .attr("zoom",2)
         
-        console.log("dataName",dataName)
-        console.log("dataNameT",dataNameT)
+        // console.log("dataName",dataName)
+        // console.log("dataNameT",dataNameT)
 
         const gs = svg.selectAll(".gs")
             .data(dataName)
@@ -300,7 +351,7 @@ class Compare extends React.Component {
                 // i = i % 4
                 ScaleYRange.push([padding.height - padding.bottom - (width) * (dataName.length - i), 
                                     padding.height - padding.bottom - (width) * (dataName.length - i) + width])
-                console.log("transform i",i,d)
+                // console.log("transform i",i,d)
                 // return `translate( ${this.theme.width - padding.right - ((width) * (i + 1)) + padding.split},
                 return `translate( ${this.theme.width - padding.right - ((width) * (3 + 1)) + padding.split},
                                     ${padding.height - padding.bottom - (width) * (dataName.length - i)} )`
@@ -317,7 +368,9 @@ class Compare extends React.Component {
             .attr("y", 0)
             .attr("width", width)
             .attr("height", width)
-            .attr("fill", "rgb(234,234,242)")
+            // .attr("fill", "rgb(234,234,242)")
+            .attr("fill", "rgb(255, 255, 255)")
+
         // .attr("stroke", "white")
         let ScaleXRange_C = []
         // ScaleXRange_C.push([ScaleXRange[0]])
@@ -333,6 +386,10 @@ class Compare extends React.Component {
         ScaleXRange = ScaleXRange_C
         
         this.name.forEach((name, indexY) => {
+            /**
+             * @var
+             * 散点图所用数据
+             */
             let dataset1 = []
             let dataset1_copy = []
             data.forEach((item1) => {
@@ -375,33 +432,44 @@ class Compare extends React.Component {
                 let dis_ = dataset2_copy.slice(-1)[0] - dataset2_copy[0]
                 let XLine = [dataset2_copy[0], dataset2_copy[0] + dis_ / 4, dataset2_copy[0] + 2 * dis_ / 4, dataset2_copy[0] + 3 * dis_ / 4, dataset2_copy.slice(-1)[0]]
                 // 暂定 没有问题
-                svg.append("g")
-                    .selectAll(".lines" + indexX + indexY + "X")
-                    .data(XLine)
-                    .join("line")
-                    .attr("class", "lines" + indexX + indexY + "X")
-                    .attr("x1", (d, i) => scaleX(XLine[i]))
-                    .attr("x2", (d, i) => scaleX(XLine[i]))
-                    .attr("y1", padding.height - padding.bottom - (width) * (dataName.length - indexY))
-                    .attr("y2", padding.height - padding.bottom - (width) * (dataName.length - indexY) + width)
-                    .attr("stroke", "white")
-                    .attr("stroke-width", "1px")
-                // TODO: 修改对齐
-                svg.append("g")
-                    .selectAll(".lines" + indexY + indexX + "Y")
-                    .data(YLine)
-                    .join("line")
-                    .attr("class", "lines" + indexY + indexX + "Y")
-                    // .attr("x1", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
-                    // .attr("x2", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
-                    .attr("x1", padding.width + 41 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
-                    .attr("x2", padding.width + 41 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
-                    .attr("y1", (d, i) => {
-                        return scaleY(YLine[i])
-                    })
-                    .attr("y2", (d, i) => scaleY(YLine[i]))
-                    .attr("stroke", "white")
-                    .attr("stroke-width", "1px")
+                const finetuning_X_lines = -3
+                // svg.append("g")
+                //     .selectAll(".lines" + indexX + indexY + "X")
+                //     .data(XLine)
+                //     .join("line")
+                //     .attr("class", "lines" + indexX + indexY + "X")
+                //     .attr("x1", (d, i) => {
+                //         console.log("lines x",i,d)
+                //         return scaleX(XLine[i]) + finetuning_X_lines
+                //     })
+                //     .attr("x2", (d, i) => scaleX(XLine[i]) + finetuning_X_lines)
+                //     .attr("y1",  padding.height - padding.bottom - (width) * (dataName.length - indexY))
+                //     .attr("y2",  padding.height - padding.bottom - (width) * (dataName.length - indexY) + width)
+                //     // .attr("stroke", "white")
+                //     .attr("stroke", "RGB(174,174,175)")                    
+                //     // .attr("opacity",0.1)
+                //     .attr("stroke-width", "1px")
+                // // TODO: 修改对齐
+                // const finetuning_Y_lines = 41
+                // svg.append("g")
+                //     .selectAll(".lines" + indexY + indexX + "Y")
+                //     .data(YLine)
+                //     .join("line")
+                //     .attr("class", "lines" + indexY + indexX + "Y")
+                //     // .attr("x1", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width)
+                //     // .attr("x2", padding.width + 97 - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
+                //     .attr("x1", finetuning_Y_lines + padding.width - padding.right - (width) * (dataName[indexY].length) + indexX * width)
+                //     .attr("x2", finetuning_Y_lines + padding.width - padding.right - (width) * (dataName[indexY].length) + indexX * width + width)
+                //     .attr("y1", (d, i) => {
+                //         return scaleY(YLine[i])
+                //     })
+                //     .attr("y2", (d, i) => scaleY(YLine[i]))
+                //     // .attr("stroke", "white")
+                //     .attr("stroke", "RGB(174,174,175)")
+                //     // .attr("opacity",0.1)
+                //     .attr("stroke-width", "1px")
+                // console.log("dataset1",dataset1)
+                const irrelevantColor = "RGB(138,138,138)"
                 // 自相关
                 if (flag === name) {
                     let dataRect = []
@@ -432,9 +500,11 @@ class Compare extends React.Component {
                         .attr("class", "rect" + indexX + "R")
                         .attr("x", (d, i) => scaleX(d.left))
                         .attr("y", d => scaleRect(d.num))
-                        .attr("width", d => scaleX(d.right) - scaleX(d.left))
+                        .attr("width", d => scaleX(d.right) - scaleX(d.left) - 0.5)
                         .attr("height", d => scaleRect(domainRect[0]) - scaleRect(d.num) + 2)
-                        .attr("fill", "rgb(255,140,0)")
+                        // .attr("fill", "rgb(255,140,0)")
+                        .attr("fill", irrelevantColor)
+
                     svg.append("g")
                         .selectAll(".text" + indexY + "Y")
                         .data([name])
@@ -508,12 +578,24 @@ class Compare extends React.Component {
                                     return "blue"
                                 }
                             } else {
-                                return "rgb(255,140,0)"
+                                // return "rgb(255,140,0)"
+                                return irrelevantColor
                             }
                         })
                         .attr("stroke", "white")
                         .attr("stroke-width", "0.1px")
                         .attr("loss_mae", d => d.loss_mae)
+                        .attr("opacity",d => {
+                            if (d.loss_mae > timeMae[d.hour]) {
+                                if (d.pre - d.tru > 0) {
+                                    return 1
+                                } else {
+                                    return 1
+                                }
+                            } else {
+                                return 0.5
+                            }
+                        })
                     }else
                     svg.append("g")
                         .selectAll(".scatters" + indexX + indexY)
@@ -535,18 +617,104 @@ class Compare extends React.Component {
                                     return "blue"
                                 }
                             } else {
-                                return "rgb(255,140,0)"
+                                // return "rgb(255,140,0)"
+                                return irrelevantColor
                             }
                         })
                         .attr("stroke", "white")
                         .attr("stroke-width", "0.1px")
                         .attr("loss_mae", d => d.loss_mae)
+                        .attr("opacity",d => {
+                            if (d.loss_mae > timeMae[d.hour]) {
+                                if (d.pre - d.tru > 0) {
+                                    return 1
+                                } else {
+                                    return 1
+                                }
+                            } else {
+                                return 0.5
+                            }
+                        })
                 }
             })
 
         })
     }
 
+    /**
+     * @method
+     * d3 test matrix plot
+     */
+    d3MatrixRender = () => {
+        const timeMae = {}
+        /**
+         * @var
+         * 当前类别的 时间段
+         */
+        let selectCategoryTime = []
+        this.maeList.forEach((item) => {
+            item.time.forEach((t) => {
+                let times = t.split("~")
+                selectCategoryTime = times
+                for (let i = parseInt(times[0]); i < parseInt(times[1]); i++) {
+                    timeMae[i] = item.mae
+                }
+            })
+        })
+        /**
+         * @var 
+         * 所选逆变器的所有数据
+         */
+        let data = this.data
+        let dataOne = this.data[this.sourceKey]
+        /**
+         * @var
+         * 所选日期当天的数据 分号类别
+         */
+        let datasetAll = []
+        for (let key in data) {
+            data[key].forEach((item) => {
+                // if (item.month === this.month && item.day === this.day) {
+                //     datasetAll.push(item)
+                // }
+                const item_current_time = getTime( item.date_time ).split(":")
+                if(
+                    parseInt(item_current_time[0]) >= parseInt( selectCategoryTime[0]) &&
+                    parseInt(item_current_time[0]) <= parseInt( selectCategoryTime[1]) 
+                    // && item.month === this.month && item.day === this.day
+                ){
+                    // datasetAll.push(item)
+                    let color = null
+                    if(item.loss_mae > timeMae[item.hour]){
+                        if(item.testPre - item.dc_power > 0){
+                            color = "red"
+                        }else{
+                            color = "blue"
+                        }
+                    }else{
+                        color="orange"
+                    }
+                    datasetAll.push({
+                        ...item,
+                        color
+                    })
+                }
+            })
+        }
+
+
+
+
+        ScatterplotMatrix(datasetAll, {
+            columns: this.name,
+            z: d => d.color
+        })
+    }
+
+    /**
+     * @method
+     * 绘制重要程度 柱状图
+     */
     ImportShow = () => {
         // 各种 条件的重要程度
         const data = [
@@ -614,8 +782,8 @@ class Compare extends React.Component {
         // const containerHeight = document.getElementsByClassName("myChange-sector").clientHeight
         // const containerWidth = document.getElementsByClassName("myChange-sector").clientWidth
 
-        const containerHeight = 200
-        const containerWidth = 380
+        const containerHeight = 263
+        const containerWidth = 250
         const margin = {
             top: 20,
             left:20,
@@ -647,9 +815,9 @@ class Compare extends React.Component {
             }
             return item
         })
-        console.log("finalData",finalData,modelConditionalScaleData)
+        // console.log("finalData",finalData,modelConditionalScaleData)
         // modelConditionalScaleData
-        console.log("irr_ave irr_select at_ave at_select mt_ave mt_select",irr_ave,irr_select,at_ave,at_select,mt_ave,mt_select)
+        // console.log("irr_ave irr_select at_ave at_select mt_ave mt_select",irr_ave,irr_select,at_ave,at_select,mt_ave,mt_select)
 
         const arc = d3.arc()
                         .outerRadius(radius)
@@ -785,7 +953,7 @@ class Compare extends React.Component {
                     .attr("height",containerHeight)
                     .attr("width",containerWidth)
                     .append("g")
-                    .attr("transform", `translate(${containerWidth/2},${containerHeight/2 - 14})`)
+                    .attr("transform", `translate(${containerWidth/2},${containerHeight/2 - 20})`)
 
         myTextures.forEach((t) => d3.select(".template-sector-svg").call(t))
     
@@ -800,7 +968,7 @@ class Compare extends React.Component {
             .style("fill", (d) => {
                 const {name} = d.data
                 // return myTextures[0].url()
-                console.log("arc d",d)
+                // console.log("arc d",d)
                 if(name === "irr"){
                     return "rgb(255,236,139)"
                 }else if(name === "mt"){
@@ -818,7 +986,7 @@ class Compare extends React.Component {
             .attr("d",d3.arc()
                         .innerRadius(radius/8)
                         .outerRadius( (d) => {
-                        console.log("d",d)
+                        // console.log("d",d)
                         return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) ) } )
             )
             .style("fill", (d) => {
@@ -836,7 +1004,7 @@ class Compare extends React.Component {
                 // return "red"
             })
             .attr("opacity",(d) => {
-                console.log("opacity",d)
+                // console.log("opacity",d)
                 const {ave,select} = d.data 
                 return 0.8
                 if( ave > select){
@@ -850,7 +1018,7 @@ class Compare extends React.Component {
             .attr("d",d3.arc()
                         .innerRadius((d) => (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) ))
                         .outerRadius( (d) => {
-                        console.log("d",d)
+                        // console.log("d",d)
                         return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['ave']) )*1.02 } )
             )
             .style("fill", (d) => {
@@ -868,7 +1036,7 @@ class Compare extends React.Component {
                 // return "red"
             })
             .attr("opacity",(d) => {
-                console.log("opacity",d)
+                // console.log("opacity",d)
                 const {ave,select} = d.data 
                 return 1
                 if( ave > select){
@@ -883,7 +1051,7 @@ class Compare extends React.Component {
             .attr("d",d3.arc()
                         .innerRadius(radius/8)
                         .outerRadius( (d) => {
-                        console.log("d",d)
+                        // console.log("d",d)
                         return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) ) } )
             )
             .style("fill", (d) => {
@@ -919,7 +1087,7 @@ class Compare extends React.Component {
             .attr("d",d3.arc()
                         .innerRadius((d) => (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) ))
                         .outerRadius( (d) => {
-                        console.log("d",d)
+                        // console.log("d",d)
                         return    (d3.scaleRadial().domain([d.data["min"],d.data["max"]]).range([0,radius])(d.data['select']) )*1.02 } )
             )
             .style("fill", (d) => {
@@ -1004,3 +1172,122 @@ class Compare extends React.Component {
     }
 }
 export default Compare;
+
+
+
+// Copyright 2021 Observable, Inc.
+// Released under the ISC license.
+// https://observablehq.com/@d3/splom
+function ScatterplotMatrix(data, {
+    columns = data.columns, // array of column names, or accessor functions
+    x = columns, // array of x-accessors
+    y = columns, // array of y-accessors
+    z = () => 1, // given d in data, returns the (categorical) z-value
+    padding = 5, // separation between adjacent cells, in pixels
+    marginTop = 5, // top margin, in pixels
+    marginRight = 5, // right margin, in pixels
+    marginBottom = 5, // bottom margin, in pixels
+    marginLeft = 5, // left margin, in pixels
+    width = 1000, // outer width, in pixels
+    height = width - 80, // outer height, in pixels
+    xType = d3.scaleLinear, // the x-scale type
+    yType = d3.scaleLinear, // the y-scale type
+    zDomain, // array of z-values
+    fillOpacity = 0.7, // opacity of the dots
+    colors = d3.schemeCategory10, // array of colors for z
+  } = {}) {
+    // Compute values (and promote column names to accessors).
+    const X = d3.map(x, x => d3.map(data, typeof x === "function" ? x : d => d[x]));
+    const Y = d3.map(y, y => d3.map(data, typeof y === "function" ? y : d => d[y]));
+    const Z = d3.map(data, z);
+  
+    // Compute default z-domain, and unique the z-domain.
+    if (zDomain === undefined) zDomain = Z;
+    zDomain = new d3.InternSet(zDomain);
+  
+    // Omit any data not present in the z-domain.
+    const I = d3.range(Z.length).filter(i => zDomain.has(Z[i]));
+  
+    // Compute the inner dimensions of the cells.
+    const cellWidth = (width - marginLeft - marginRight - (X.length - 1) * padding) / X.length;
+    const cellHeight = (height - marginTop - marginBottom - (Y.length - 1) * padding) / Y.length;
+  
+    // Construct scales and axes.
+    const xScales = X.map(X => xType(d3.extent(X), [0, cellWidth]));
+    const yScales = Y.map(Y => yType(d3.extent(Y), [cellHeight, 0]));
+    const zScale = d3.scaleOrdinal(zDomain, colors);
+    const xAxis = d3.axisBottom().ticks(cellWidth / 50);
+    const yAxis = d3.axisLeft().ticks(cellHeight / 35);
+  
+    const svg = d3.select("#ploat")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [-marginLeft, -marginTop, width, height])
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;z-index:99;");
+    // const svg = d3.select("#root").create("svg")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //     .attr("viewBox", [-marginLeft, -marginTop, width, height])
+    //     .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+  
+    svg.append("g")
+      .selectAll("g")
+      .data(yScales)
+      .join("g")
+        .attr("transform", (d, i) => `translate(0,${i * (cellHeight + padding)})`)
+        .each(function(yScale) { return d3.select(this).call(yAxis.scale(yScale)); })
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").clone()
+            .attr("x2", width - marginLeft - marginRight)
+            .attr("stroke-opacity", 0.1));
+  
+    svg.append("g")
+      .selectAll("g")
+      .data(xScales)
+      .join("g")
+        .attr("transform", (d, i) => `translate(${i * (cellWidth + padding)},${height - marginBottom - marginTop})`)
+        .each(function(xScale) { return d3.select(this).call(xAxis.scale(xScale)); })
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").clone()
+            .attr("y2", -height + marginTop + marginBottom)
+            .attr("stroke-opacity", 0.1))
+  
+    const cell = svg.append("g")
+      .selectAll("g")
+      .data(d3.cross(d3.range(X.length), d3.range(Y.length)))
+      .join("g")
+        .attr("fill-opacity", fillOpacity)
+        .attr("transform", ([i, j]) => `translate(${i * (cellWidth + padding)},${j * (cellHeight + padding)})`);
+  
+    cell.append("rect")
+        .attr("fill", "none")
+        .attr("stroke", "currentColor")
+        .attr("width", cellWidth)
+        .attr("height", cellHeight);
+  
+    cell.each(function([x, y]) {
+      d3.select(this).selectAll("circle")
+        .data(I.filter(i => !isNaN(X[x][i]) && !isNaN(Y[y][i])))
+        .join("circle")
+          .attr("r", 3.5)
+          .attr("cx", i => xScales[x](X[x][i]))
+          .attr("cy", i => yScales[y](Y[y][i]))
+          .attr("fill", i => zScale(Z[i]));
+    });
+  
+    // TODO Support labeling for asymmetric sploms?
+    if (x === y) svg.append("g")
+        .attr("font-size", 10)
+        .attr("font-family", "sans-serif")
+        .attr("font-weight", "bold")
+      .selectAll("text")
+      .data(x)
+      .join("text")
+        .attr("transform", (d, i) => `translate(${i * (cellWidth + padding)},${i * (cellHeight + padding)})`)
+        .attr("x", padding / 2)
+        .attr("y", padding / 2)
+        .attr("dy", ".71em")
+        .text(d => d);
+  
+    // return Object.assign(svg.node(), {scales: {color: zScale}});
+}

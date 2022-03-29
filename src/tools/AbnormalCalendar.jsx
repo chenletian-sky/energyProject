@@ -145,8 +145,11 @@ export default class AbnormalCalendar extends Component {
         item["range"] = d3.extent(dataset) // 范围为所有数据的最大值和最小值
         // item["mae"] = parseInt(d3.extent(dataset)[1]) + 1
     })
-    
-    const dataSection = dataT["1BY6WEcLGh8j5v7"]
+    const inverterID = []
+    for (let key in dataT) { // 存入逆变器名称
+        inverterID.push(key)
+    }
+    const dataSection = dataT[inverterID[0]]
     const timeDict = {}
     const timeDate = {}
     const timeDateList = []
@@ -657,7 +660,7 @@ export default class AbnormalCalendar extends Component {
 
         d3.selectAll('.g.path-text')
             .on("click",function(event,d){
-                console.log("abnormalCalendar",event,d)
+                // console.log("abnormalCalendar",event,d)
                 // console.log("path",event.path)
                 d3.selectAll("text.g").attr("stroke","none")
                 d3.select(event.path[0])

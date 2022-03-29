@@ -37,6 +37,7 @@ class Analysis extends React.Component {
         this.Yscale_ = null
         this.Xscale_float = null
         this.Yscale_float = null
+        this.selectCurrentCategory = null
     }
     // x坐标轴部分 对应的构造函数
     xAxis = (g, x) => {
@@ -543,7 +544,7 @@ class Analysis extends React.Component {
                 DeletTemp()
                 d3.select("#compaleline").selectAll("g").remove()
 
-                console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data,d.time)
+                // console.log("test lineCompareChange",d.id,sendTimes,data[d.label].mae,data,d.time)
                 const selectCurrentData = d.date.split("-")
                 var sendObject = {
                     id:d.id,
@@ -555,8 +556,16 @@ class Analysis extends React.Component {
                 // 交互传参 当前逆变器的id 时间段(聚类的时间段 eg:["13~16"]) 当前类别的设定阈值(mae) 当前聚类，步长 以及阈值的总数据
                 this.props.LineCompareChange(d.id,sendTimes,data[d.label].mae,data)
                 // 右下角 compare 改变
-                // console.log("analysis time",d.time,d.id, data,d)
-                this.props.KeyNameChange(d.id, parseInt(selectCurrentData[1]),parseInt(selectCurrentData[2]), data)
+                console.log("analysis time",d.time,d.id, data,d)
+                const selectCurrentCategory = []
+                for(let i = 0;i<data.length;i++){
+                    if(data[i].label === d.label){
+                        selectCurrentCategory.push(data[i])
+                        break;
+                    }
+                }
+                // this.props.KeyNameChange(d.id, parseInt(selectCurrentData[1]),parseInt(selectCurrentData[2]), data)
+                this.props.renderBeforeKeyNameChange(d.label,d.id, parseInt(selectCurrentData[1]),parseInt(selectCurrentData[2]), data)
             })
     }
 

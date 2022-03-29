@@ -447,7 +447,8 @@ class LineCompale extends React.Component {
 					
 					// this.props.AveCompare(irr_T, at_T, mt_T, MAE, Value, Pre)
 					// test
-					// this.props.MultiSectorRender(irr_T, at_T, mt_T)
+					// TODO: 改为在 左下角 tentativeCOM 绘制
+					this.props.MultiSectorRender(irr_T, at_T, mt_T)
 				}
 			})
 

@@ -64,6 +64,8 @@ class App extends React.Component {
 		this.myFlag = React.createRef()
 		this.myDataIntroduce = React.createRef()
 		this.myAbnormalCalendar = React.createRef()
+
+		this.selectCurrentCategory = null
 	}
 	// PagePass = (value) => {
 	// 	this.myAddInfo.current.page = value
@@ -91,7 +93,7 @@ class App extends React.Component {
 		// this.myAnalysis.current.forceShow()
 	}
 	MDSFetch = (data, value, date, month) => {
-		console.log("mdsFetch ",data,value,date,month)
+		// console.log("mdsFetch ",data,value,date,month)
 		this.myLineCompale.current.date = { "day": date, "month": month }
 		this.myLineCompale.current.split = value
 		
@@ -112,12 +114,46 @@ class App extends React.Component {
 		})
 	}
 
+	/**
+	 * 
+	 * @param {*} category
+	 * 所选类别 
+	 * @param {*} name 
+	 * @param {*} month 
+	 * @param {*} day 
+	 * @param {*} maeList 
+	 */
+	renderBeforeKeyNameChange = (category,name,month,day,maeList) => {
+		if(isNaN(this.selectCurrentCategory)){
+			this.KeyNameChange(name,month,day,maeList)
+			this.selectCurrentCategory = category
+		}else{
+				if(category !== this.selectCurrentCategory){
+					this.KeyNameChange(name,month,day,maeList)
+					this.selectCurrentCategory = category
+				}
+		}
+	}
+	/**
+	 * 
+	 * @param {*} name
+	 * 逆变器id 
+	 * @param {*} month
+	 * 选中日期的月份 
+	 * @param {*} day
+	 * 选中日期的天 
+	 * @param {*} maeList
+	 * 选中 
+	 */
 	KeyNameChange = (name, month, day, maeList) => {
 		this.myCompare.current.sourceKey = name
 		this.myCompare.current.month = month
 		this.myCompare.current.day = day
 		this.myCompare.current.maeList = maeList
+		// console.log("keyNameChange maeList",maeList)
+		// TODO: 待定 
 		this.myCompare.current.scaleLine()
+		// this.myCompare.current.d3MatrixRender()
 	}
 
 	LineCompareChange = (name, time, mae, maeList) => {
@@ -134,8 +170,8 @@ class App extends React.Component {
 		this.myLineCompale.current.setState({ total: false }, () => {
 			this.myLineCompale.current.LineRender()
 		})
-		// 右下角 对比图更新
-		this.myCompare.current.ImportShow()
+		// 右下角 对比图更新 重要程度柱形图
+		// this.myCompare.current.ImportShow()
 	}
 	SimilarSelect = (distance) => {
 		this.myAbnormal.current.distance = distance
@@ -231,7 +267,6 @@ class App extends React.Component {
 	 * @param currentData
 	 * 包含 id currentTime 
 	 */
-	// TODO: 与散点图进行交互 => addInfo
 	MDSFetchWithMatrix = (currentData) => {
 		console.log("currentData",currentData)
 		
@@ -266,7 +301,7 @@ class App extends React.Component {
 	 * 联系 日历图和矩阵图
 	 */
 	connectCalendarAndMatrix = (currentDate) => {
-		console.log("connect matrix",this.myControl.current.attrLabel)
+		// console.log("connect matrix",this.myControl.current.attrLabel)
 		this.KmeansR(this.myControl.current.attrLabel,currentDate)
 		this.ColorC(this.myControl.current.ListData)
 		// this.myControl.current.AttrsAdjust()
@@ -288,7 +323,7 @@ class App extends React.Component {
 		// for (let i = 0; i < document.getElementsByClassName('textmae').length; i++) {
 		// 		myMae.push(document.getElementsByClassName('textmae')[i].textContent)
 		// }
-		console.log("connect matrix inputValue2",this.myControl.current)
+		// console.log("connect matrix inputValue2",this.myControl.current)
 		const step = this.myControl.current.state.inputValue2
 		axios({
 			method:"POST",
@@ -300,7 +335,7 @@ class App extends React.Component {
 				// "mae":myMae
 			}
 		}).then((responser) => {
-			console.log("connectCalendarAndScatter",responser.data, selectCurrentDate[2], selectCurrentDate[1])
+			// console.log("connectCalendarAndScatter",responser.data, selectCurrentDate[2], selectCurrentDate[1])
 			this.MDSFetch(responser.data, step, parseInt( selectCurrentDate[2]),parseInt( selectCurrentDate[1]))
 		})
 	}
@@ -358,6 +393,7 @@ class App extends React.Component {
 					})
 				}
 				this.MonthDayDicts = MonthDayDict
+				// console.log("dataT",this.dataT)
 				this.setState({ num: 1 }, () => {
 					// this.myAnalysis.current.forceShow()
 					// this.myAnalysis.current.matirxRender()
@@ -389,7 +425,7 @@ class App extends React.Component {
 					
 
 					
-					
+					{/* 弃用的柱形图 */}
 					<Abnormal
 						ref={this.myAbnormal}
 						theme={this.AbnormalTheme}
@@ -455,6 +491,7 @@ class App extends React.Component {
 							LineCompareChange={this.LineCompareChange}
 							MDSFetchWithMatrix={this.MDSFetchWithMatrix}
 							KeyNameChange={this.KeyNameChange}
+							renderBeforeKeyNameChange={this.renderBeforeKeyNameChange}
 						>
 						</Analysis>
 						<LineCompale
@@ -474,7 +511,9 @@ class App extends React.Component {
 							theme={this.AddInfoTheme}
 							dataT={this.dataT}
 							LineCompareChange={this.LineCompareChange}
-							KeyNameChange={this.KeyNameChange}>
+							KeyNameChange={this.KeyNameChange}
+							renderBeforeKeyNameChange={this.renderBeforeKeyNameChange}
+							>
 						</AddInfo>
 						<Compare
 							ref={this.myCompare}

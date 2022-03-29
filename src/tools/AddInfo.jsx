@@ -75,8 +75,8 @@ class AddInfo extends React.Component {
 
             })
         }
-        console.log(abDict);
-        console.log(maedict);
+        // console.log(abDict);
+        // console.log(maedict);
         for (let key in abDict) {
             number.push(abDict[key])
         }
@@ -136,7 +136,7 @@ class AddInfo extends React.Component {
             data = this.dataAll[parseInt(this.page / 2) - 1]
         }
         // const data = this.data
-        console.log("lineheightrender",this.page)
+        // console.log("lineheightrender",this.page)
         const svg = d3.select("#lineHeight")
         // const color = ["rgb(245,170,38)", "rgb(233,241,239)", "rgb(199,220,239)", "rgb(140,193,255)", "rgb(36,112,169)"]
         // const size = d3.scaleLinear().domain([0, d3.max(data, d => d.abnum)]).range([2, 5])
@@ -202,19 +202,59 @@ class AddInfo extends React.Component {
             .attr("name", d => d.id)
             .attr("timefirst", d => d.split[0])
             .attr("timelast", d => d.split[1])
-            .on("click", (e) => {
+            .on("click", (e,d) => {
+                // DeletTemp()
+                // d3.select("#compaleline").selectAll("g").remove()
+                // if (isNaN(this.selectCircle)) {
+                //     this.selectCircle.setAttribute("stroke", "white")
+                // }
+                // e.target.setAttribute("stroke", "black")
+                // this.selectCircle = e.target
+                // const name = e.target.getAttribute("name")
+                // const times = { "first": e.target.getAttribute("timefirst"), "end": e.target.getAttribute("timelast") }
+                // const maes = e.target.getAttribute("mae")
+                // this.props.LineCompareChange(name, times, maes, this.mae)
+                // this.props.KeyNameChange(name, this.month, this.day, this.mae)
+                
                 DeletTemp()
+                
                 d3.select("#compaleline").selectAll("g").remove()
+                
                 if (isNaN(this.selectCircle)) {
                     this.selectCircle.setAttribute("stroke", "white")
                 }
+
                 e.target.setAttribute("stroke", "black")
                 this.selectCircle = e.target
+                // 逆变器 id
                 const name = e.target.getAttribute("name")
+                // 所处的时间段 eg: 9 ~ 19
                 const times = { "first": e.target.getAttribute("timefirst"), "end": e.target.getAttribute("timelast") }
+                // 当前类别下的 阈值 (即跟随滑动条变化的阈值)
                 const maes = e.target.getAttribute("mae")
+                // 当前的类别的总阈值数据 (即当前滑动条绘制数据)
+                // this.mae
+                // console.log("this.mae addInfo",this.mae,e,d)
+                const selectCategory = []
+                this.mae.forEach((item,index) => {
+                    let itemSplit = item.time[0].split("~")
+                    if(
+                        parseInt( itemSplit[0] ) === parseInt( d.split[0]) &&
+                        parseInt( itemSplit[1] ) === parseInt( d.split[1])
+                    ){
+                        selectCategory.push(item)
+                    }
+                })
+                // console.log("selectCategory",selectCategory)
+                // 核心LineCompareChange 
+                // 交互传参 当前逆变器的id 时间段(聚类的时间段 eg:["13~16"]) 当前类别的设定阈值(mae) 当前聚类，步长 以及阈值的总数据
                 this.props.LineCompareChange(name, times, maes, this.mae)
-                this.props.KeyNameChange(name, this.month, this.day, this.mae)
+                // 右下角 compare 改变
+                // this.props.KeyNameChange(name, this.month, this.day, this.mae)
+
+                // this.props.KeyNameChange(name, this.month, this.day, selectCategory)
+                // console.log("add info ",selectCategory,name)
+                this.props.renderBeforeKeyNameChange(selectCategory[0].label,name, this.month, this.day, selectCategory)
             })
     }
     // AbnormalData = () => {

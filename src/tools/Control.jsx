@@ -394,7 +394,7 @@ class Control extends React.Component {
                     this.props.ColorC(data) // 修改矩阵视图的异常显示情况
                     
                     this.props.MAEChange(data)
-                    console.log("end slider",this.ListData)
+                    // console.log("end slider",this.ListData)
                     this.ListData = data
                     this.StatisticsRender()
                     circleD.filter(p => p === d).attr("stroke", "rgb(145,213,255)")
@@ -463,7 +463,7 @@ class Control extends React.Component {
         const dataT = this.props.dataT
         const dataMae = this.ListData
         const datalast = []
-        console.log(dataMae);
+        // console.log(dataMae);
         let num = 1
         for (let key in dataT) {
             let dataset_avg = []
